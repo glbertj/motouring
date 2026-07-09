@@ -19,6 +19,8 @@ import com.valid.motouring.ui.onboarding.LoginScreen
 import com.valid.motouring.ui.onboarding.OnboardingScreen
 import com.valid.motouring.ui.onboarding.SplashScreen
 import com.valid.motouring.ui.profile.EditProfileScreen
+import com.valid.motouring.ui.profile.NotificationsScreen
+import com.valid.motouring.ui.profile.NotificationsViewModel
 import com.valid.motouring.ui.profile.SettingsScreen
 import com.valid.motouring.ui.social.CreatePostScreen
 import com.valid.motouring.ui.social.FriendsScreen
@@ -146,6 +148,12 @@ fun MotouringNavHost(
         }
         composable(Destinations.SETTINGS) {
             SettingsScreen()
+        }
+        composable(Destinations.NOTIFICATIONS) {
+            val viewModel: NotificationsViewModel = viewModel(
+                factory = NotificationsViewModel.factory(appContainer.notificationRepository),
+            )
+            NotificationsScreen(viewModel = viewModel)
         }
         composable(
             Destinations.CHALLENGE_DETAIL_PATTERN,
