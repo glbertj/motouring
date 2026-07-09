@@ -5,10 +5,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.valid.motouring.di.AppContainer
 import com.valid.motouring.ui.onboarding.LoginScreen
 import com.valid.motouring.ui.onboarding.OnboardingScreen
 import com.valid.motouring.ui.onboarding.SplashScreen
+import com.valid.motouring.ui.vehicle.VehicleGarageSetupScreen
+import com.valid.motouring.ui.vehicle.VehicleGarageViewModel
 
 @Composable
 fun MotouringNavHost(
@@ -33,6 +36,22 @@ fun MotouringNavHost(
         composable(Destinations.LOGIN) {
             LoginScreen(
                 onLoginSuccess = { navController.navigate(Destinations.VEHICLE_GARAGE_SETUP) },
+            )
+        }
+        composable(Destinations.VEHICLE_GARAGE_SETUP) {
+            val viewModel: VehicleGarageViewModel = viewModel(
+                factory = VehicleGarageViewModel.factory(
+                    appContainer.vehicleRepository,
+                    appContainer.userRepository.currentUser().id,
+                ),
+            )
+            VehicleGarageSetupScreen(
+                viewModel = viewModel,
+                onVehicleAdded = {
+                    navController.navigate(Destinations.MAIN) {
+                        popUpTo(Destinations.SPLASH) { inclusive = true }
+                    }
+                },
             )
         }
     }
