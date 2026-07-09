@@ -57,3 +57,11 @@ private fun SettingsToggleRow(label: String, checked: Boolean, onCheckedChange: 
         Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun SettingsScreenPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        SettingsScreen()
+    }
+}

@@ -42,3 +42,11 @@ fun EditProfileScreen(initialName: String, onSave: (String) -> Unit) {
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun EditProfileScreenPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        EditProfileScreen(initialName = "Rafi", onSave = {})
+    }
+}

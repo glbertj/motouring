@@ -28,3 +28,11 @@ fun BadgesScreen(badges: List<Badge>, onBadgeClick: (String) -> Unit) {
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun BadgesScreenPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        BadgesScreen(badges = com.valid.motouring.data.fake.FakeDataProvider.badges, onBadgeClick = {})
+    }
+}

@@ -63,3 +63,11 @@ fun ChallengeDetailScreen(challenge: Challenge) {
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun ChallengeDetailScreenPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        ChallengeDetailScreen(challenge = com.valid.motouring.data.fake.FakeDataProvider.challenges.first())
+    }
+}

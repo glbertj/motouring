@@ -18,3 +18,11 @@ fun StatBlock(label: String, value: String, modifier: Modifier = Modifier) {
         )
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun StatBlockPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        StatBlock(label = "Distance", value = "18.4 km")
+    }
+}

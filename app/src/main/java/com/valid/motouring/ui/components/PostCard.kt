@@ -77,3 +77,11 @@ fun PostCard(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun PostCardPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        PostCard(post = com.valid.motouring.data.fake.FakeDataProvider.posts.first(), onLikeClick = {}, onCardClick = {})
+    }
+}

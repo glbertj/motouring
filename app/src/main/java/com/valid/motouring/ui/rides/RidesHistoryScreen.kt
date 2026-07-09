@@ -51,3 +51,11 @@ private fun RideHistoryCard(entry: RideHistoryEntry) {
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun RidesHistoryScreenPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        RidesHistoryScreen(history = com.valid.motouring.data.fake.FakeDataProvider.rideHistory)
+    }
+}

@@ -42,3 +42,13 @@ fun RideBuddyAvatarRow(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun RideBuddyAvatarRowPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        RideBuddyAvatarRow(
+            avatarResList = com.valid.motouring.data.fake.FakeDataProvider.users.map { it.avatarRes },
+        )
+    }
+}

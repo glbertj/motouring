@@ -58,3 +58,11 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun LoginScreenPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        LoginScreen(onLoginSuccess = {})
+    }
+}

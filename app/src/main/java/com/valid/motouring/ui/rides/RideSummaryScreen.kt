@@ -68,3 +68,15 @@ fun RideSummaryScreen(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun RideSummaryScreenPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        RideSummaryScreen(
+            entry = com.valid.motouring.data.fake.FakeDataProvider.rideHistory.first(),
+            earnedBadges = com.valid.motouring.data.fake.FakeDataProvider.badges.filter { it.isEarned },
+            onDone = {},
+        )
+    }
+}

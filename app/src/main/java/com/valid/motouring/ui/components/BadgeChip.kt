@@ -36,3 +36,11 @@ fun BadgeChip(badge: Badge, onClick: () -> Unit, modifier: Modifier = Modifier) 
         )
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun BadgeChipPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        BadgeChip(badge = com.valid.motouring.data.fake.FakeDataProvider.badges.first(), onClick = {})
+    }
+}

@@ -72,3 +72,15 @@ fun StartRideScreen(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun StartRideScreenPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        StartRideScreen(
+            vehicles = com.valid.motouring.data.fake.FakeDataProvider.vehicles.filter { it.ownerId == "u-me" },
+            onInviteBuddiesClick = {},
+            onStartRide = { _, _ -> },
+        )
+    }
+}

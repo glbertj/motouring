@@ -20,3 +20,11 @@ fun SplashScreen(onTimeout: () -> Unit) {
         Text(text = "Motouring", style = MaterialTheme.typography.headlineMedium)
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun SplashScreenPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        SplashScreen(onTimeout = {})
+    }
+}

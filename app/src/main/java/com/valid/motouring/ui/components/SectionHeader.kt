@@ -30,3 +30,11 @@ fun SectionHeader(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun SectionHeaderPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        SectionHeader(title = "Feed", actionLabel = "New Post", onActionClick = {})
+    }
+}

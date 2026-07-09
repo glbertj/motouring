@@ -84,3 +84,11 @@ fun OnboardingScreen(onFinished: () -> Unit) {
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun OnboardingScreenPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        OnboardingScreen(onFinished = {})
+    }
+}

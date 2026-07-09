@@ -41,3 +41,11 @@ fun BadgeDetailScreen(badge: Badge) {
         )
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun BadgeDetailScreenPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        BadgeDetailScreen(badge = com.valid.motouring.data.fake.FakeDataProvider.badges.first())
+    }
+}
