@@ -7,6 +7,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,10 +24,15 @@ import com.valid.motouring.ui.challenges.ChallengesScreen
 import com.valid.motouring.ui.challenges.ChallengesViewModel
 import com.valid.motouring.ui.home.HomeScreen
 import com.valid.motouring.ui.home.HomeViewModel
+import com.valid.motouring.ui.rides.RidesHistoryScreen
 
 // Tab tasks (Nearby: Task 15, Challenges/Badges: Tasks 16-17, Rides: Task 18, Profile: Tasks 24-27)
 // each add their own route to this set once their composable() entry below is wired in.
-private val implementedTabRoutes = setOf(BottomTab.Home.route, BottomTab.Challenges.route)
+private val implementedTabRoutes = setOf(
+    BottomTab.Home.route,
+    BottomTab.Challenges.route,
+    BottomTab.Rides.route,
+)
 
 @Composable
 fun MainScaffold(
@@ -83,6 +89,10 @@ fun MainScaffold(
                     onSeeAllBadgesClick = { outerNavController.navigate(Destinations.BADGES) },
                     onBadgeClick = { id -> outerNavController.navigate(Destinations.badgeDetail(id)) },
                 )
+            }
+            composable(BottomTab.Rides.route) {
+                val history by appContainer.rideRepository.observeHistory().collectAsState()
+                RidesHistoryScreen(history = history)
             }
         }
     }
