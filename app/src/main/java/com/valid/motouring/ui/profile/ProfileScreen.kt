@@ -2,9 +2,8 @@ package com.valid.motouring.ui.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,22 +11,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.valid.motouring.ui.components.BadgeChip
+import com.valid.motouring.ui.components.MotouringCard
 import com.valid.motouring.ui.components.SectionHeader
 import com.valid.motouring.ui.components.StatBlock
+import com.valid.motouring.ui.components.StaggeredEntrance
 
 @Composable
 fun ProfileScreen(
@@ -44,7 +45,7 @@ fun ProfileScreen(
 
     LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
         item {
-            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Image(
                     painter = painterResource(id = viewModel.currentUser.avatarRes),
                     contentDescription = viewModel.currentUser.name,
@@ -65,16 +66,18 @@ fun ProfileScreen(
 
             SectionHeader(title = "My Garage")
         }
-        items(vehicles) { vehicle ->
-            Card(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
-                Row(modifier = Modifier.padding(12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(id = vehicle.photoRes),
-                        contentDescription = "${vehicle.make} ${vehicle.model}",
-                        modifier = Modifier.size(48.dp),
-                    )
-                    Spacer(modifier = Modifier.padding(start = 12.dp))
-                    Text(text = "${vehicle.year} ${vehicle.make} ${vehicle.model}")
+        itemsIndexed(vehicles) { index, vehicle ->
+            StaggeredEntrance(index = index, modifier = Modifier.padding(bottom = 8.dp)) {
+                MotouringCard(modifier = Modifier.fillMaxWidth()) {
+                    Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(id = vehicle.photoRes),
+                            contentDescription = "${vehicle.make} ${vehicle.model}",
+                            modifier = Modifier.size(48.dp),
+                        )
+                        Spacer(modifier = Modifier.padding(start = 12.dp))
+                        Text(text = "${vehicle.year} ${vehicle.make} ${vehicle.model}")
+                    }
                 }
             }
         }
