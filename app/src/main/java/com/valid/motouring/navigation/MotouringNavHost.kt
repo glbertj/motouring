@@ -19,6 +19,8 @@ import com.valid.motouring.ui.onboarding.LoginScreen
 import com.valid.motouring.ui.onboarding.OnboardingScreen
 import com.valid.motouring.ui.onboarding.SplashScreen
 import com.valid.motouring.ui.social.CreatePostScreen
+import com.valid.motouring.ui.social.FriendsScreen
+import com.valid.motouring.ui.social.FriendsViewModel
 import com.valid.motouring.ui.social.PostDetailScreen
 import com.valid.motouring.ui.social.PostViewModel
 import com.valid.motouring.ui.vehicle.VehicleGarageSetupScreen
@@ -102,6 +104,12 @@ fun MotouringNavHost(
                 ),
             )
             PostDetailScreen(viewModel = viewModel)
+        }
+        composable(Destinations.FRIENDS) {
+            val viewModel: FriendsViewModel = viewModel(
+                factory = FriendsViewModel.factory(appContainer.rideBuddyRepository),
+            )
+            FriendsScreen(viewModel = viewModel)
         }
         composable(
             Destinations.CHALLENGE_DETAIL_PATTERN,
