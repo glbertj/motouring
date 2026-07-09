@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.valid.motouring.di.AppContainer
+import com.valid.motouring.ui.main.MainScaffold
 import com.valid.motouring.ui.onboarding.LoginScreen
 import com.valid.motouring.ui.onboarding.OnboardingScreen
 import com.valid.motouring.ui.onboarding.SplashScreen
@@ -53,6 +54,9 @@ fun MotouringNavHost(
                     }
                 },
             )
+        }
+        composable(Destinations.MAIN) {
+            MainScaffold(appContainer = appContainer, outerNavController = navController)
         }
     }
 }
