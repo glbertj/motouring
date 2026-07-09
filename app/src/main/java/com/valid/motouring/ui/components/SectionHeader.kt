@@ -20,7 +20,7 @@ fun SectionHeader(
     onActionClick: (() -> Unit)? = null,
 ) {
     Row(
-        modifier = modifier.fillMaxWidth().padding(vertical = 8.dp),
+        modifier = modifier.fillMaxWidth().padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
