@@ -14,6 +14,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.valid.motouring.ui.theme.AccentPrimary
+import com.valid.motouring.ui.theme.Charcoal600
 import kotlinx.coroutines.launch
 
 private data class OnboardingPage(val title: String, val body: String)
@@ -63,7 +65,7 @@ fun OnboardingScreen(onFinished: () -> Unit) {
                         .padding(4.dp)
                         .size(if (isSelected) 10.dp else 8.dp)
                         .background(
-                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
+                            color = if (isSelected) AccentPrimary else Charcoal600,
                             shape = CircleShape,
                         ),
                 )
