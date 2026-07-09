@@ -70,7 +70,11 @@ private fun ChallengeRow(challenge: Challenge, onClick: () -> Unit) {
                     style = MotouringTextStyles.statLabel,
                 )
             }
-            InstrumentRing(progress = (challenge.currentValue / challenge.goalValue).toFloat(), size = 48.dp)
+            InstrumentRing(
+                progress = (challenge.currentValue / challenge.goalValue).toFloat(),
+                size = 48.dp,
+                showTicks = false,
+            )
         }
     }
 }

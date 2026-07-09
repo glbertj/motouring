@@ -69,7 +69,7 @@ fun HomeScreen(
                         ) {
                             Text(
                                 text = "${(challenge.currentValue / challenge.goalValue * 100).toInt()}%",
-                                style = MotouringTextStyles.statLabel,
+                                style = MotouringTextStyles.statValueLarge,
                             )
                         }
                     }

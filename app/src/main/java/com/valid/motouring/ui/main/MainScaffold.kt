@@ -1,5 +1,6 @@
 package com.valid.motouring.ui.main
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -53,8 +55,9 @@ fun MainScaffold(
             NavigationBar {
                 val currentDestination = tabNavController.currentBackStackEntryAsState().value?.destination
                 BottomTab.all.forEach { tab ->
+                    val isSelected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
                     NavigationBarItem(
-                        selected = currentDestination?.hierarchy?.any { it.route == tab.route } == true,
+                        selected = isSelected,
                         enabled = tab.route in implementedTabRoutes,
                         onClick = {
                             tabNavController.navigate(tab.route) {
@@ -63,7 +66,18 @@ fun MainScaffold(
                                 restoreState = true
                             }
                         },
-                        icon = { Icon(tab.icon, contentDescription = tab.label) },
+                        icon = {
+                            val scale by animateFloatAsState(
+                                targetValue = if (isSelected) 1.15f else 1f,
+                                animationSpec = MotouringMotion.press(),
+                                label = "tabIconScale",
+                            )
+                            Icon(
+                                tab.icon,
+                                contentDescription = tab.label,
+                                modifier = Modifier.graphicsLayer(scaleX = scale, scaleY = scale),
+                            )
+                        },
                         label = { Text(tab.label) },
                     )
                 }

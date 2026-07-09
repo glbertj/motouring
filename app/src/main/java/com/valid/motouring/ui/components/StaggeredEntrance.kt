@@ -21,7 +21,7 @@ fun StaggeredEntrance(
 ) {
     var visible by remember(index) { mutableStateOf(false) }
     LaunchedEffect(index) {
-        delay(index * MotouringMotion.staggerDelayMs)
+        delay(index.coerceAtMost(8) * MotouringMotion.staggerDelayMs)
         visible = true
     }
     AnimatedVisibility(
