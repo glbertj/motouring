@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -45,7 +47,7 @@ fun CreatePostScreen(
         Image(
             painter = painterResource(id = R.drawable.ic_photo_placeholder),
             contentDescription = "Selected photo",
-            modifier = Modifier.fillMaxWidth().height(180.dp),
+            modifier = Modifier.fillMaxWidth().height(180.dp).clip(RoundedCornerShape(14.dp)),
         )
         Spacer(modifier = Modifier.height(16.dp))
 
