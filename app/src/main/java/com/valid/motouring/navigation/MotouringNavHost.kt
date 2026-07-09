@@ -1,8 +1,17 @@
 package com.valid.motouring.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -33,13 +42,28 @@ import com.valid.motouring.ui.rides.RideSummaryScreen
 import com.valid.motouring.ui.rides.StartRideScreen
 import com.valid.motouring.ui.vehicle.VehicleGarageSetupScreen
 import com.valid.motouring.ui.vehicle.VehicleGarageViewModel
+import com.valid.motouring.ui.theme.MotouringMotion
 
 @Composable
 fun MotouringNavHost(
     appContainer: AppContainer,
     navController: NavHostController = rememberNavController(),
 ) {
-    NavHost(navController = navController, startDestination = Destinations.SPLASH) {
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+        NavHost(
+            navController = navController,
+            startDestination = Destinations.SPLASH,
+            enterTransition = {
+                slideInHorizontally(animationSpec = MotouringMotion.comfy(), initialOffsetX = { it / 3 }) +
+                    fadeIn(animationSpec = tween(220))
+            },
+            exitTransition = { fadeOut(animationSpec = tween(180)) },
+            popEnterTransition = { fadeIn(animationSpec = tween(220)) },
+            popExitTransition = {
+                slideOutHorizontally(animationSpec = MotouringMotion.comfy(), targetOffsetX = { it / 3 }) +
+                    fadeOut(animationSpec = tween(180))
+            },
+        ) {
         composable(Destinations.SPLASH) {
             SplashScreen(
                 onTimeout = {
@@ -196,6 +220,7 @@ fun MotouringNavHost(
                     onDone = { navController.popBackStack() },
                 )
             }
+        }
         }
     }
 }
