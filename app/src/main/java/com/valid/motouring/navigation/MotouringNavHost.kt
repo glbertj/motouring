@@ -11,6 +11,8 @@ import com.valid.motouring.ui.main.MainScaffold
 import com.valid.motouring.ui.onboarding.LoginScreen
 import com.valid.motouring.ui.onboarding.OnboardingScreen
 import com.valid.motouring.ui.onboarding.SplashScreen
+import com.valid.motouring.ui.social.CreatePostScreen
+import com.valid.motouring.ui.social.PostViewModel
 import com.valid.motouring.ui.vehicle.VehicleGarageSetupScreen
 import com.valid.motouring.ui.vehicle.VehicleGarageViewModel
 
@@ -57,6 +59,23 @@ fun MotouringNavHost(
         }
         composable(Destinations.MAIN) {
             MainScaffold(appContainer = appContainer, outerNavController = navController)
+        }
+        composable(Destinations.CREATE_POST) {
+            val currentUser = appContainer.userRepository.currentUser()
+            val viewModel: PostViewModel = viewModel(
+                factory = PostViewModel.factory(
+                    appContainer.postRepository,
+                    appContainer.rideRepository,
+                    currentUser.id,
+                    currentUser.name,
+                    currentUser.avatarRes,
+                    postId = null,
+                ),
+            )
+            CreatePostScreen(
+                viewModel = viewModel,
+                onPosted = { navController.popBackStack() },
+            )
         }
     }
 }
