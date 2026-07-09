@@ -1,6 +1,8 @@
 package com.valid.motouring.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,6 +11,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.valid.motouring.di.AppContainer
+import com.valid.motouring.ui.challenges.BadgeDetailScreen
+import com.valid.motouring.ui.challenges.BadgesScreen
 import com.valid.motouring.ui.challenges.ChallengeDetailScreen
 import com.valid.motouring.ui.main.MainScaffold
 import com.valid.motouring.ui.onboarding.LoginScreen
@@ -107,6 +111,23 @@ fun MotouringNavHost(
             val challenge = appContainer.challengeRepository.challenge(challengeId)
             if (challenge != null) {
                 ChallengeDetailScreen(challenge = challenge)
+            }
+        }
+        composable(Destinations.BADGES) {
+            val badges by appContainer.badgeRepository.observeBadges().collectAsState()
+            BadgesScreen(
+                badges = badges,
+                onBadgeClick = { id -> navController.navigate(Destinations.badgeDetail(id)) },
+            )
+        }
+        composable(
+            Destinations.BADGE_DETAIL_PATTERN,
+            arguments = listOf(navArgument("badgeId") { type = NavType.StringType }),
+        ) { backStackEntry ->
+            val badgeId = requireNotNull(backStackEntry.arguments?.getString("badgeId"))
+            val badge = appContainer.badgeRepository.badge(badgeId)
+            if (badge != null) {
+                BadgeDetailScreen(badge = badge)
             }
         }
     }
