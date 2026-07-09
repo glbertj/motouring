@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.valid.motouring.di.AppContainer
+import com.valid.motouring.ui.onboarding.LoginScreen
 import com.valid.motouring.ui.onboarding.OnboardingScreen
 import com.valid.motouring.ui.onboarding.SplashScreen
 
@@ -27,6 +28,11 @@ fun MotouringNavHost(
         composable(Destinations.ONBOARDING) {
             OnboardingScreen(
                 onFinished = { navController.navigate(Destinations.LOGIN) },
+            )
+        }
+        composable(Destinations.LOGIN) {
+            LoginScreen(
+                onLoginSuccess = { navController.navigate(Destinations.VEHICLE_GARAGE_SETUP) },
             )
         }
     }
