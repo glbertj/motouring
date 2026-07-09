@@ -19,12 +19,14 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.valid.motouring.di.AppContainer
 import com.valid.motouring.navigation.Destinations
+import com.valid.motouring.ui.challenges.ChallengesScreen
+import com.valid.motouring.ui.challenges.ChallengesViewModel
 import com.valid.motouring.ui.home.HomeScreen
 import com.valid.motouring.ui.home.HomeViewModel
 
 // Tab tasks (Nearby: Task 15, Challenges/Badges: Tasks 16-17, Rides: Task 18, Profile: Tasks 24-27)
 // each add their own route to this set once their composable() entry below is wired in.
-private val implementedTabRoutes = setOf(BottomTab.Home.route)
+private val implementedTabRoutes = setOf(BottomTab.Home.route, BottomTab.Challenges.route)
 
 @Composable
 fun MainScaffold(
@@ -69,6 +71,17 @@ fun MainScaffold(
                     onStartRideClick = { outerNavController.navigate(Destinations.START_RIDE) },
                     onPostClick = { postId -> outerNavController.navigate(Destinations.postDetail(postId)) },
                     onCreatePostClick = { outerNavController.navigate(Destinations.CREATE_POST) },
+                )
+            }
+            composable(BottomTab.Challenges.route) {
+                val viewModel: ChallengesViewModel = viewModel(
+                    factory = ChallengesViewModel.factory(appContainer.challengeRepository, appContainer.badgeRepository),
+                )
+                ChallengesScreen(
+                    viewModel = viewModel,
+                    onChallengeClick = { id -> outerNavController.navigate(Destinations.challengeDetail(id)) },
+                    onSeeAllBadgesClick = { outerNavController.navigate(Destinations.BADGES) },
+                    onBadgeClick = { id -> outerNavController.navigate(Destinations.badgeDetail(id)) },
                 )
             }
         }

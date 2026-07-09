@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.valid.motouring.di.AppContainer
+import com.valid.motouring.ui.challenges.ChallengeDetailScreen
 import com.valid.motouring.ui.main.MainScaffold
 import com.valid.motouring.ui.onboarding.LoginScreen
 import com.valid.motouring.ui.onboarding.OnboardingScreen
@@ -97,6 +98,16 @@ fun MotouringNavHost(
                 ),
             )
             PostDetailScreen(viewModel = viewModel)
+        }
+        composable(
+            Destinations.CHALLENGE_DETAIL_PATTERN,
+            arguments = listOf(navArgument("challengeId") { type = NavType.StringType }),
+        ) { backStackEntry ->
+            val challengeId = requireNotNull(backStackEntry.arguments?.getString("challengeId"))
+            val challenge = appContainer.challengeRepository.challenge(challengeId)
+            if (challenge != null) {
+                ChallengeDetailScreen(challenge = challenge)
+            }
         }
     }
 }
