@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -26,18 +26,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.valid.motouring.data.model.BuddyStatus
 import com.valid.motouring.data.model.RideBuddy
+import com.valid.motouring.ui.components.StaggeredEntrance
 
 @Composable
 fun FriendsScreen(viewModel: FriendsViewModel) {
     val buddies by viewModel.buddies.collectAsState()
 
     LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
-        items(buddies, key = { it.user.id }) { buddy ->
-            BuddyRow(
-                buddy = buddy,
-                onAccept = { viewModel.accept(buddy.user.id) },
-                onAdd = { viewModel.sendRequest(buddy.user.id) },
-            )
+        itemsIndexed(buddies, key = { _, it -> it.user.id }) { index, buddy ->
+            StaggeredEntrance(index = index) {
+                BuddyRow(
+                    buddy = buddy,
+                    onAccept = { viewModel.accept(buddy.user.id) },
+                    onAdd = { viewModel.sendRequest(buddy.user.id) },
+                )
+            }
         }
     }
 }

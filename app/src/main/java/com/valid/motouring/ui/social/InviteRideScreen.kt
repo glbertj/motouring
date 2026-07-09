@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.valid.motouring.data.model.RideBuddy
+import com.valid.motouring.ui.components.StaggeredEntrance
 
 @Composable
 fun InviteRideScreen(viewModel: InviteRideViewModel, onDone: () -> Unit) {
@@ -36,12 +37,14 @@ fun InviteRideScreen(viewModel: InviteRideViewModel, onDone: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.weight(1f), contentPadding = PaddingValues(16.dp)) {
             item { Text(text = "Invite ride buddies", style = MaterialTheme.typography.headlineMedium) }
-            items(friends, key = { it.user.id }) { buddy ->
-                FriendSelectRow(
-                    buddy = buddy,
-                    isSelected = buddy.user.id in selectedUserIds,
-                    onToggle = { viewModel.toggleSelected(buddy.user.id) },
-                )
+            itemsIndexed(friends, key = { _, it -> it.user.id }) { index, buddy ->
+                StaggeredEntrance(index = index) {
+                    FriendSelectRow(
+                        buddy = buddy,
+                        isSelected = buddy.user.id in selectedUserIds,
+                        onToggle = { viewModel.toggleSelected(buddy.user.id) },
+                    )
+                }
             }
         }
         Button(
