@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.valid.motouring.di.AppContainer
+import com.valid.motouring.ui.onboarding.OnboardingScreen
 import com.valid.motouring.ui.onboarding.SplashScreen
 
 @Composable
@@ -15,7 +16,18 @@ fun MotouringNavHost(
 ) {
     NavHost(navController = navController, startDestination = Destinations.SPLASH) {
         composable(Destinations.SPLASH) {
-            SplashScreen()
+            SplashScreen(
+                onTimeout = {
+                    navController.navigate(Destinations.ONBOARDING) {
+                        popUpTo(Destinations.SPLASH) { inclusive = true }
+                    }
+                },
+            )
+        }
+        composable(Destinations.ONBOARDING) {
+            OnboardingScreen(
+                onFinished = { navController.navigate(Destinations.LOGIN) },
+            )
         }
     }
 }
