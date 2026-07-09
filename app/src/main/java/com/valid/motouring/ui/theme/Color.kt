@@ -2,19 +2,23 @@ package com.valid.motouring.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Charcoal900 = Color(0xFF12100E)
-val Charcoal800 = Color(0xFF1C1917)
-val Charcoal700 = Color(0xFF2A2522)
-val Charcoal600 = Color(0xFF3D3632)
-val Amber500 = Color(0xFFFFA726)
-val Amber300 = Color(0xFFFFCC80)
-val Red500 = Color(0xFFE53935)
+val Charcoal950 = Color(0xFF100E0C)
+val Charcoal900 = Color(0xFF15130F)
+val Charcoal800 = Color(0xFF1A1714)
+val Charcoal700 = Color(0xFF241E19)
+val Charcoal600 = Color(0xFF2A2522)
+val Charcoal500 = Color(0xFF3D3632)
+val AccentPrimary = Color(0xFFFF5A36)
 val OffWhite = Color(0xFFF5F1EC)
 val Muted = Color(0xFFA89F97)
+val MutedDim = Color(0xFF7A8087)
 
 object MotouringColors {
-    val speakingNowHighlight = Amber500
+    val ringTrack = Charcoal600
+    val ringProgress = AccentPrimary
+    val ringTick = Charcoal500
+    val ringGlow = Charcoal700
     val badgeLocked = Charcoal600
-    val badgeEarned = Amber500
-    val liked = Red500
+    val badgeEarned = AccentPrimary
+    val liked = AccentPrimary
 }
