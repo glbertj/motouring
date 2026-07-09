@@ -24,6 +24,8 @@ import com.valid.motouring.ui.challenges.ChallengesScreen
 import com.valid.motouring.ui.challenges.ChallengesViewModel
 import com.valid.motouring.ui.home.HomeScreen
 import com.valid.motouring.ui.home.HomeViewModel
+import com.valid.motouring.ui.profile.ProfileScreen
+import com.valid.motouring.ui.profile.ProfileViewModel
 import com.valid.motouring.ui.rides.RidesHistoryScreen
 
 // Tab tasks (Nearby: Task 15, Challenges/Badges: Tasks 16-17, Rides: Task 18, Profile: Tasks 24-27)
@@ -32,6 +34,7 @@ private val implementedTabRoutes = setOf(
     BottomTab.Home.route,
     BottomTab.Challenges.route,
     BottomTab.Rides.route,
+    BottomTab.Profile.route,
 )
 
 @Composable
@@ -93,6 +96,23 @@ fun MainScaffold(
             composable(BottomTab.Rides.route) {
                 val history by appContainer.rideRepository.observeHistory().collectAsState()
                 RidesHistoryScreen(history = history)
+            }
+            composable(BottomTab.Profile.route) {
+                val viewModel: ProfileViewModel = viewModel(
+                    factory = ProfileViewModel.factory(
+                        appContainer.userRepository,
+                        appContainer.vehicleRepository,
+                        appContainer.rideRepository,
+                        appContainer.badgeRepository,
+                    ),
+                )
+                ProfileScreen(
+                    viewModel = viewModel,
+                    onFriendsClick = { outerNavController.navigate(Destinations.FRIENDS) },
+                    onEditProfileClick = { outerNavController.navigate(Destinations.EDIT_PROFILE) },
+                    onSettingsClick = { outerNavController.navigate(Destinations.SETTINGS) },
+                    onNotificationsClick = { outerNavController.navigate(Destinations.NOTIFICATIONS) },
+                )
             }
         }
     }
