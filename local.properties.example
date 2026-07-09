@@ -1,3 +1,6 @@
+# Requires Android SDK Platform 35 + Build-Tools 35.0.0 installed (compileSdk/targetSdk
+# were raised from 34 to 35 during Task 1 — the Compose BOM pulls in androidx libraries
+# that declare minCompileSdk=35, so building against platform 34 fails with a real AGP error).
 sdk.dir=/path/to/Android/sdk
 MAPBOX_DOWNLOADS_TOKEN=your_mapbox_secret_downloads_token
 MAPBOX_PUBLIC_TOKEN=your_mapbox_public_access_token
