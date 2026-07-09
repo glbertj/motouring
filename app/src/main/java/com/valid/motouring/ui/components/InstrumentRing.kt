@@ -73,15 +73,17 @@ fun InstrumentRing(
 
             if (showTicks) {
                 val tickLength = stroke * 1.5f
+                val tickInnerRadius = radius + stroke / 2f
+                val tickOuterRadius = tickInnerRadius + tickLength
                 for (angleDeg in listOf(0f, 90f, 180f, 270f)) {
                     val angleRad = Math.toRadians(angleDeg.toDouble())
                     val outer = Offset(
-                        center.x + (radius + stroke) * cos(angleRad).toFloat(),
-                        center.y + (radius + stroke) * sin(angleRad).toFloat(),
+                        center.x + tickOuterRadius * cos(angleRad).toFloat(),
+                        center.y + tickOuterRadius * sin(angleRad).toFloat(),
                     )
                     val inner = Offset(
-                        center.x + (radius + stroke - tickLength) * cos(angleRad).toFloat(),
-                        center.y + (radius + stroke - tickLength) * sin(angleRad).toFloat(),
+                        center.x + tickInnerRadius * cos(angleRad).toFloat(),
+                        center.y + tickInnerRadius * sin(angleRad).toFloat(),
                     )
                     drawLine(color = MotouringColors.ringTick, start = inner, end = outer, strokeWidth = 1.5.dp.toPx())
                 }
