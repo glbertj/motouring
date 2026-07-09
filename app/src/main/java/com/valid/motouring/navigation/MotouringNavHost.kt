@@ -6,12 +6,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.valid.motouring.di.AppContainer
 import com.valid.motouring.ui.main.MainScaffold
 import com.valid.motouring.ui.onboarding.LoginScreen
 import com.valid.motouring.ui.onboarding.OnboardingScreen
 import com.valid.motouring.ui.onboarding.SplashScreen
 import com.valid.motouring.ui.social.CreatePostScreen
+import com.valid.motouring.ui.social.PostDetailScreen
 import com.valid.motouring.ui.social.PostViewModel
 import com.valid.motouring.ui.vehicle.VehicleGarageSetupScreen
 import com.valid.motouring.ui.vehicle.VehicleGarageViewModel
@@ -76,6 +79,24 @@ fun MotouringNavHost(
                 viewModel = viewModel,
                 onPosted = { navController.popBackStack() },
             )
+        }
+        composable(
+            Destinations.POST_DETAIL_PATTERN,
+            arguments = listOf(navArgument("postId") { type = NavType.StringType }),
+        ) { backStackEntry ->
+            val postId = requireNotNull(backStackEntry.arguments?.getString("postId"))
+            val currentUser = appContainer.userRepository.currentUser()
+            val viewModel: PostViewModel = viewModel(
+                factory = PostViewModel.factory(
+                    appContainer.postRepository,
+                    appContainer.rideRepository,
+                    currentUser.id,
+                    currentUser.name,
+                    currentUser.avatarRes,
+                    postId = postId,
+                ),
+            )
+            PostDetailScreen(viewModel = viewModel)
         }
     }
 }
