@@ -12,10 +12,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.valid.motouring.data.model.Badge
+import com.valid.motouring.ui.components.InstrumentRing
 
 @Composable
 fun BadgeDetailScreen(badge: Badge) {
@@ -23,11 +23,18 @@ fun BadgeDetailScreen(badge: Badge) {
         modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Image(
-            painter = painterResource(id = badge.iconRes),
-            contentDescription = badge.title,
-            modifier = Modifier.size(96.dp).alpha(if (badge.isEarned) 1f else 0.35f),
-        )
+        InstrumentRing(
+            progress = if (badge.isEarned) 1f else 0f,
+            size = 120.dp,
+            strokeWidth = 5.dp,
+            showGlow = badge.isEarned,
+        ) {
+            Image(
+                painter = painterResource(id = badge.iconRes),
+                contentDescription = badge.title,
+                modifier = Modifier.size(72.dp),
+            )
+        }
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = badge.title, style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(8.dp))

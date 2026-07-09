@@ -5,12 +5,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.valid.motouring.data.model.Badge
 import com.valid.motouring.ui.components.BadgeChip
+import com.valid.motouring.ui.components.StaggeredEntrance
 
 @Composable
 fun BadgesScreen(badges: List<Badge>, onBadgeClick: (String) -> Unit) {
@@ -19,12 +20,10 @@ fun BadgesScreen(badges: List<Badge>, onBadgeClick: (String) -> Unit) {
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
     ) {
-        items(badges, key = { it.id }) { badge ->
-            BadgeChip(
-                badge = badge,
-                onClick = { onBadgeClick(badge.id) },
-                modifier = Modifier.padding(8.dp),
-            )
+        itemsIndexed(badges, key = { _, it -> it.id }) { index, badge ->
+            StaggeredEntrance(index = index, modifier = Modifier.padding(8.dp)) {
+                BadgeChip(badge = badge, onClick = { onBadgeClick(badge.id) })
+            }
         }
     }
 }
