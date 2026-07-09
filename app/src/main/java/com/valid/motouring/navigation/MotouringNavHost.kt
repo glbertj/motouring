@@ -19,6 +19,7 @@ import com.valid.motouring.ui.onboarding.LoginScreen
 import com.valid.motouring.ui.onboarding.OnboardingScreen
 import com.valid.motouring.ui.onboarding.SplashScreen
 import com.valid.motouring.ui.profile.EditProfileScreen
+import com.valid.motouring.ui.profile.SettingsScreen
 import com.valid.motouring.ui.social.CreatePostScreen
 import com.valid.motouring.ui.social.FriendsScreen
 import com.valid.motouring.ui.social.FriendsViewModel
@@ -142,6 +143,9 @@ fun MotouringNavHost(
                     navController.popBackStack()
                 },
             )
+        }
+        composable(Destinations.SETTINGS) {
+            SettingsScreen()
         }
         composable(
             Destinations.CHALLENGE_DETAIL_PATTERN,
