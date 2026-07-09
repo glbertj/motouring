@@ -2,25 +2,29 @@ package com.valid.motouring.ui.home
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.valid.motouring.ui.components.InstrumentRing
+import com.valid.motouring.ui.components.MotouringCard
 import com.valid.motouring.ui.components.PostCard
 import com.valid.motouring.ui.components.SectionHeader
+import com.valid.motouring.ui.components.StaggeredEntrance
+import com.valid.motouring.ui.theme.MotouringTextStyles
 
 @Composable
 fun HomeScreen(
@@ -41,13 +45,33 @@ fun HomeScreen(
         }
         featuredChallenge?.let { challenge ->
             item {
-                Card(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(challenge.title, style = MaterialTheme.typography.titleMedium)
-                        LinearProgressIndicator(
-                            progress = { (challenge.currentValue / challenge.goalValue).toFloat().coerceIn(0f, 1f) },
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                        )
+                MotouringCard(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+                    Row(
+                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(challenge.title.uppercase(), style = MotouringTextStyles.statLabel)
+                            Row(verticalAlignment = Alignment.Bottom) {
+                                Text(
+                                    text = challenge.currentValue.toInt().toString(),
+                                    style = MotouringTextStyles.statValue,
+                                )
+                                Text(
+                                    text = "/${challenge.goalValue.toInt()} km",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                            }
+                        }
+                        InstrumentRing(
+                            progress = (challenge.currentValue / challenge.goalValue).toFloat(),
+                            size = 64.dp,
+                        ) {
+                            Text(
+                                text = "${(challenge.currentValue / challenge.goalValue * 100).toInt()}%",
+                                style = MotouringTextStyles.statLabel,
+                            )
+                        }
                     }
                 }
             }
@@ -55,13 +79,14 @@ fun HomeScreen(
         item {
             SectionHeader(title = "Feed", actionLabel = "New Post", onActionClick = onCreatePostClick)
         }
-        items(posts, key = { it.id }) { post ->
-            PostCard(
-                post = post,
-                onLikeClick = { viewModel.toggleLike(post.id) },
-                onCardClick = { onPostClick(post.id) },
-                modifier = Modifier.padding(bottom = 12.dp),
-            )
+        itemsIndexed(posts, key = { _, post -> post.id }) { index, post ->
+            StaggeredEntrance(index = index, modifier = Modifier.padding(bottom = 12.dp)) {
+                PostCard(
+                    post = post,
+                    onLikeClick = { viewModel.toggleLike(post.id) },
+                    onCardClick = { onPostClick(post.id) },
+                )
+            }
         }
     }
 }
