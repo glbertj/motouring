@@ -31,8 +31,8 @@ Out of scope (explicitly not built):
 - **Architecture**: MVVM — Compose screens → `ViewModel` (exposes `StateFlow`) → in-memory fake repositories → data models
 - **Navigation**: Navigation-Compose, single-activity, bottom nav for main tabs + pushed screens for flows
 - **DI**: lightweight manual `AppContainer` (no Hilt) — minimizes setup friction for a mockup-scale app
-- **Maps**: Mapbox Maps SDK for Android + Mapbox Directions API for route polylines (same stack Strava uses). No billing/self-hosting required for mockup/dev use (free tier).
-- **Images**: Coil, backed by local drawables / bundled placeholder images (no real upload/storage)
+- **Maps**: Mapbox Maps SDK for Android (same stack Strava uses). No billing/self-hosting required for mockup/dev use (free tier). Routes are predefined polylines bundled in the fake data layer, not computed via a live Directions API call — this mockup makes no network calls at all (see Data Persistence below), so route "calculation" is fake too.
+- **Images**: plain Compose `Image` + `painterResource` against bundled local drawable placeholders — no Coil, since nothing in this mockup ever loads an image from a URI, gallery, or camera (photo pickers are mocked, not real)
 - **Simulation**: Kotlin coroutine tickers drive animated ride tracking and the voice-call "speaking now" indicator
 
 ## Data Persistence
@@ -97,6 +97,6 @@ No loading or error states are needed anywhere — all data is local and instant
 ## Testing
 
 Given this is a UI mockup with no business logic beyond local simulation, testing is limited to:
-- Compose UI previews for each screen (visual sanity check, no CI requirement)
+- Compose `@Preview` functions for every screen/component that takes plain data rather than a `ViewModel` (visual sanity check, no CI requirement). Screens that take a `ViewModel` directly aren't preview-covered in this phase — previewing them would require a fake `ViewModel`/`AppContainer` scaffold that isn't otherwise justified for a mockup; those get their manual smoke-test step from the plan instead.
 - Manual smoke test of the full navigation graph (every screen reachable, back stack behaves correctly)
 - No unit/instrumentation test suite required for this phase — revisit if this evolves into a production build
