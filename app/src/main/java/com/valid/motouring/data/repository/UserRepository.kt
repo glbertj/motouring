@@ -15,4 +15,8 @@ class UserRepository {
         users.value.first { it.id == FakeDataProvider.currentUserId }
 
     fun userById(id: String): User? = users.value.firstOrNull { it.id == id }
+
+    fun updateName(userId: String, name: String) {
+        users.value = users.value.map { if (it.id == userId) it.copy(name = name) else it }
+    }
 }

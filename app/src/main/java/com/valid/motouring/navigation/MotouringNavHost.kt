@@ -18,6 +18,7 @@ import com.valid.motouring.ui.main.MainScaffold
 import com.valid.motouring.ui.onboarding.LoginScreen
 import com.valid.motouring.ui.onboarding.OnboardingScreen
 import com.valid.motouring.ui.onboarding.SplashScreen
+import com.valid.motouring.ui.profile.EditProfileScreen
 import com.valid.motouring.ui.social.CreatePostScreen
 import com.valid.motouring.ui.social.FriendsScreen
 import com.valid.motouring.ui.social.FriendsViewModel
@@ -129,6 +130,16 @@ fun MotouringNavHost(
                 onInviteBuddiesClick = { navController.navigate(Destinations.INVITE_RIDE) },
                 onStartRide = { vehicleType, isGroup ->
                     navController.navigate(Destinations.rideSession(vehicleType.name, isGroup))
+                },
+            )
+        }
+        composable(Destinations.EDIT_PROFILE) {
+            val currentUser = appContainer.userRepository.currentUser()
+            EditProfileScreen(
+                initialName = currentUser.name,
+                onSave = { newName ->
+                    appContainer.userRepository.updateName(currentUser.id, newName)
+                    navController.popBackStack()
                 },
             )
         }
