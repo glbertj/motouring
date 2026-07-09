@@ -25,6 +25,7 @@ import com.valid.motouring.ui.social.InviteRideScreen
 import com.valid.motouring.ui.social.InviteRideViewModel
 import com.valid.motouring.ui.social.PostDetailScreen
 import com.valid.motouring.ui.social.PostViewModel
+import com.valid.motouring.ui.rides.RideSummaryScreen
 import com.valid.motouring.ui.rides.StartRideScreen
 import com.valid.motouring.ui.vehicle.VehicleGarageSetupScreen
 import com.valid.motouring.ui.vehicle.VehicleGarageViewModel
@@ -156,6 +157,21 @@ fun MotouringNavHost(
             val badge = appContainer.badgeRepository.badge(badgeId)
             if (badge != null) {
                 BadgeDetailScreen(badge = badge)
+            }
+        }
+        composable(
+            Destinations.RIDE_SUMMARY_PATTERN,
+            arguments = listOf(navArgument("historyEntryId") { type = NavType.StringType }),
+        ) { backStackEntry ->
+            val historyEntryId = requireNotNull(backStackEntry.arguments?.getString("historyEntryId"))
+            val entry = appContainer.rideRepository.observeHistory().value.firstOrNull { it.id == historyEntryId }
+            val earnedBadges = appContainer.badgeRepository.observeBadges().value.filter { it.isEarned }
+            if (entry != null) {
+                RideSummaryScreen(
+                    entry = entry,
+                    earnedBadges = earnedBadges,
+                    onDone = { navController.popBackStack() },
+                )
             }
         }
     }
