@@ -25,6 +25,7 @@ import com.valid.motouring.ui.social.InviteRideScreen
 import com.valid.motouring.ui.social.InviteRideViewModel
 import com.valid.motouring.ui.social.PostDetailScreen
 import com.valid.motouring.ui.social.PostViewModel
+import com.valid.motouring.ui.rides.StartRideScreen
 import com.valid.motouring.ui.vehicle.VehicleGarageSetupScreen
 import com.valid.motouring.ui.vehicle.VehicleGarageViewModel
 
@@ -118,6 +119,17 @@ fun MotouringNavHost(
                 factory = InviteRideViewModel.factory(appContainer.rideBuddyRepository),
             )
             InviteRideScreen(viewModel = viewModel, onDone = { navController.popBackStack() })
+        }
+        composable(Destinations.START_RIDE) {
+            val currentUser = appContainer.userRepository.currentUser()
+            val vehicles = appContainer.vehicleRepository.vehiclesFor(currentUser.id)
+            StartRideScreen(
+                vehicles = vehicles,
+                onInviteBuddiesClick = { navController.navigate(Destinations.INVITE_RIDE) },
+                onStartRide = { vehicleType, isGroup ->
+                    navController.navigate(Destinations.rideSession(vehicleType.name, isGroup))
+                },
+            )
         }
         composable(
             Destinations.CHALLENGE_DETAIL_PATTERN,
