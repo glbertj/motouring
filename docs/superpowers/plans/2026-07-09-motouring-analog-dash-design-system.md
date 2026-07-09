@@ -29,11 +29,8 @@
 
 ```
 app/src/main/res/font/
-  space_grotesk_medium.ttf
-  space_grotesk_bold.ttf
-  inter_regular.ttf
-  inter_medium.ttf
-  inter_semibold.ttf
+  space_grotesk.ttf              (variable font, weight instanced via FontVariation)
+  inter.ttf                      (variable font, weight instanced via FontVariation)
   ibm_plex_mono_medium.ttf
   ibm_plex_mono_bold.ttf
 app/src/main/res/drawable/            (6 files redrawn in place, same names)
@@ -70,23 +67,38 @@ app/src/main/java/com/valid/motouring/
 ### Task 1: Bundle custom fonts and rebuild the type system
 
 **Files:**
-- Create: `app/src/main/res/font/space_grotesk_medium.ttf`, `space_grotesk_bold.ttf`
-- Create: `app/src/main/res/font/inter_regular.ttf`, `inter_medium.ttf`, `inter_semibold.ttf`
-- Create: `app/src/main/res/font/ibm_plex_mono_medium.ttf`, `ibm_plex_mono_bold.ttf`
+- Create: `app/src/main/res/font/space_grotesk.ttf`, `app/src/main/res/font/inter.ttf` (variable fonts — verified only variable-font sources exist for these two families on the canonical Google Fonts repo, see Step 1)
+- Create: `app/src/main/res/font/ibm_plex_mono_medium.ttf`, `ibm_plex_mono_bold.ttf` (static — verified available as separate per-weight files)
 - Modify: `app/src/main/java/com/valid/motouring/ui/theme/Type.kt`
 
 **Interfaces:**
 - Produces: `SpaceGrotesk`, `Inter`, `IbmPlexMono` (`FontFamily`), `MotouringTypography` (`Typography`, same slot names as before: headlineMedium/titleLarge/titleMedium/bodyLarge/bodyMedium/labelSmall), `MotouringTextStyles` object with `statValue`, `statValueLarge`, `statLabel` (`TextStyle`) — consumed by Task 6 (`StatBlock`) and later screen tasks.
 
-- [ ] **Step 1: Download the static TTF weights and place them in `res/font/`**
+- [ ] **Step 1: Download the font files and place them in `res/font/`**
 
-From `https://fonts.google.com/specimen/Space+Grotesk`, `https://fonts.google.com/specimen/Inter`, and `https://fonts.google.com/specimen/IBM+Plex+Mono`, download each family's static TTF zip and copy these exact files into `app/src/main/res/font/`, renamed to match Android's resource-name rules (lowercase, underscores only):
+Space Grotesk and Inter are published upstream only as variable fonts (single file, weight axis) — there is no static per-weight TTF in the canonical source. IBM Plex Mono does have static per-weight files. Download exactly these three files (verified reachable):
 
-- `space_grotesk_medium.ttf` (Medium 500), `space_grotesk_bold.ttf` (Bold 700)
-- `inter_regular.ttf` (Regular 400), `inter_medium.ttf` (Medium 500), `inter_semibold.ttf` (SemiBold 600)
-- `ibm_plex_mono_medium.ttf` (Medium 500), `ibm_plex_mono_bold.ttf` (Bold 700)
+```bash
+curl -sL -o app/src/main/res/font/space_grotesk.ttf \
+  "https://raw.githubusercontent.com/google/fonts/main/ofl/spacegrotesk/SpaceGrotesk%5Bwght%5D.ttf"
+curl -sL -o app/src/main/res/font/inter.ttf \
+  "https://raw.githubusercontent.com/google/fonts/main/ofl/inter/Inter%5Bopsz,wght%5D.ttf"
+curl -sL -o app/src/main/res/font/ibm_plex_mono_medium.ttf \
+  "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/IBMPlexMono-Medium.ttf"
+curl -sL -o app/src/main/res/font/ibm_plex_mono_bold.ttf \
+  "https://raw.githubusercontent.com/google/fonts/main/ofl/ibmplexmono/IBMPlexMono-Bold.ttf"
+```
 
-- [ ] **Step 2: Rewrite `Type.kt`**
+Verify each downloaded file is a real font, not an error page (Git LFS pointers or HTML error bodies are a few hundred bytes; real TTFs here are hundreds of KB to a few MB):
+
+```bash
+ls -la app/src/main/res/font/
+file app/src/main/res/font/*.ttf
+```
+
+Expected: `file` reports each as `TrueType Font data` (or similar), and all four are well over 10KB.
+
+- [ ] **Step 2: Rewrite `Type.kt`** (variable-font weights are selected via `FontVariation.Settings`, not separate files)
 
 ```kotlin
 package com.valid.motouring.ui.theme
@@ -95,19 +107,40 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.valid.motouring.R
 
 val SpaceGrotesk = FontFamily(
-    Font(R.font.space_grotesk_medium, FontWeight.Medium),
-    Font(R.font.space_grotesk_bold, FontWeight.Bold),
+    Font(
+        R.font.space_grotesk,
+        weight = FontWeight.Medium,
+        variationSettings = FontVariation.Settings(FontVariation.weight(500)),
+    ),
+    Font(
+        R.font.space_grotesk,
+        weight = FontWeight.Bold,
+        variationSettings = FontVariation.Settings(FontVariation.weight(700)),
+    ),
 )
 
 val Inter = FontFamily(
-    Font(R.font.inter_regular, FontWeight.Normal),
-    Font(R.font.inter_medium, FontWeight.Medium),
-    Font(R.font.inter_semibold, FontWeight.SemiBold),
+    Font(
+        R.font.inter,
+        weight = FontWeight.Normal,
+        variationSettings = FontVariation.Settings(FontVariation.weight(400)),
+    ),
+    Font(
+        R.font.inter,
+        weight = FontWeight.Medium,
+        variationSettings = FontVariation.Settings(FontVariation.weight(500)),
+    ),
+    Font(
+        R.font.inter,
+        weight = FontWeight.SemiBold,
+        variationSettings = FontVariation.Settings(FontVariation.weight(600)),
+    ),
 )
 
 val IbmPlexMono = FontFamily(
