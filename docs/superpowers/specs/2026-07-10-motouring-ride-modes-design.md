@@ -27,6 +27,8 @@ In scope:
 - Silent fallback to Endless on simulated drift
 - A new **Ride Session** screen (placeholder map, not real Mapbox)
 - Extending **Start Ride** (initial goal selection) and **Ride Summary** (leg-by-leg breakdown) — both already exist
+- A quick "undo" affordance when the choice sheet auto-dismisses to Endless
+- Two new badges tied to ride-mode behavior (Explorer, Never Ending)
 - Compose `@Preview` coverage for new/changed plain-state composables
 
 Out of scope (deferred to other specs or explicitly not built):
@@ -104,6 +106,8 @@ sealed interface RideSessionEvent {
 
 **Goal-reached moment:** `GoalReached` → a celebratory overlay (spring-based burst animation per the Analog Dash motion system, showing that leg's recap: distance/time) plays for ~2-3s on top of the still-live HUD (tracking is never paused) → settles into a non-blocking bottom sheet: "Nice! Pick a new goal, or keep riding" with preset options plus an explicit "Go Endless" button. No response within a few seconds auto-dismisses into Endless, consistent with Endless being the default fallback.
 
+If it auto-dismisses without a response, a brief snackbar appears for ~4-5s: "Went Endless — Pick a goal?" with a "Pick a goal" action that reopens the same choice sheet. This is a quick undo for a missed choice; ignoring or dismissing the snackbar just leaves the rider in Endless, where the persistent "Set a goal" chip remains the standing fallback path.
+
 **Drifted-to-Endless moment:** `DriftedToEndless` → a brief, quiet toast/snackbar ("Off route — tracking continues"). No sheet, no celebration — nothing was accomplished. The rider can still tap "Set a goal" afterward.
 
 **Ending the ride:** the existing "End Ride" action calls `RideSimulator.stop()` (existing), which now also force-closes whatever leg is active (`endReason = RIDE_ENDED`, appended to `completedLegs`) before the final `RideSession` is mapped into a `RideHistoryEntry` for Ride Summary.
@@ -111,6 +115,15 @@ sealed interface RideSessionEvent {
 ## Ride Summary Integration
 
 `RideHistoryEntry` (existing) gains one new field: `legs: List<Leg> = emptyList()`. `RideSummaryScreen` (existing) keeps its current aggregate header (the existing `StatBlock` row for distance/duration/avg speed, route preview, `BadgeChip` row) and adds a new **"Stops"** section below it, using the existing `SectionHeader` component (as the Badges section already does): one row per entry in `entry.legs`, in order, showing that leg's goal label, distance, duration, and avg speed. A tail Endless leg with no goal (`goal == null`) is labeled "Free ride" if it has nonzero distance, and omitted if negligible/zero. Leg rows use `MotouringCard` with `StaggeredEntrance`, consistent with how other list content is staggered elsewhere in the design system.
+
+## Gamification Tie-in
+
+Two new `Badge` entries are added to `FakeDataProvider.badges` (same pattern as the existing 6 — see `data/fake/FakeDataProvider.kt`), seeded `isEarned = false`:
+
+- **"Explorer"** — "Make 3+ stops in a single ride." Unlock criteria: `entry.legs.count { it.goal != null } >= 3`.
+- **"Never Ending"** — "Ride 50km+ without a goal." Unlock criteria: any leg in `entry.legs` with `goal == null && distanceMeters >= 50_000`.
+
+Unlike the app's other badges (which are static seed flags with no live computation anywhere in the codebase today), these two are the first badges actually evaluated against a real ride outcome: when "End Ride" builds the final `RideHistoryEntry`, its `legs` are checked against both criteria, and any newly-matched badge is flipped to `isEarned = true` (in-memory, on `FakeDataProvider.badges`) before navigating to Ride Summary — consistent with the app's in-memory-only persistence model. This is new logic, not just new data, but it's small and self-contained (two pure functions over `List<Leg>`).
 
 ## Design System Integration
 
@@ -133,4 +146,5 @@ This spec does not touch `ui/theme/*` or `ui/components/*` (owned by the Analog 
 Consistent with the project's existing approach:
 - Compose `@Preview` functions for new/changed composables that take plain state — Ride Session HUD, celebration overlay, choice sheet, Ride Summary leg rows
 - Manual smoke test of a full session: start with a goal → reach it → pick a new goal → go Endless → simulate drift → end ride → verify Ride Summary shows the correct legs
+- Manual smoke test of the undo snackbar (let the choice sheet auto-dismiss, confirm the snackbar's "Pick a goal" action reopens it) and of both new badges (drive a ride past each unlock criterion and confirm it shows earned in Ride Summary and the Badges grid)
 - No unit test suite — this is pure UI/state simulation with no business logic warranting one, matching the rest of the mockup
