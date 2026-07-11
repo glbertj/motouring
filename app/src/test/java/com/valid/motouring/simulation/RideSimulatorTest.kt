@@ -1,6 +1,10 @@
 package com.valid.motouring.simulation
 
 import com.valid.motouring.data.model.GeoPoint
+import com.valid.motouring.data.model.GoalType
+import com.valid.motouring.data.model.LegEndReason
+import com.valid.motouring.data.model.RideGoal
+import com.valid.motouring.data.model.RideMode
 import com.valid.motouring.data.model.RideParticipantState
 import com.valid.motouring.data.model.RideSession
 import com.valid.motouring.data.model.RideSessionStatus
@@ -74,5 +78,26 @@ class RideSimulatorTest {
         val ended = freshSession().copy(status = RideSessionStatus.ENDED)
         val next = RideSimulator.advance(ended)
         assertEquals(ended, next)
+    }
+
+    @Test
+    fun `advance closes the leg and falls back to ENDLESS when the goal distance is crossed`() {
+        val goal = RideGoal(GoalType.DISTANCE, "300 m", 300.0)
+        var session = freshSession().copy(mode = RideMode.GOAL, activeGoal = goal)
+        repeat(60) { session = RideSimulator.advance(session) }
+        assertEquals(RideMode.ENDLESS, session.mode)
+        assertEquals(null, session.activeGoal)
+        assertEquals(1, session.completedLegs.size)
+        assertEquals(LegEndReason.GOAL_REACHED, session.completedLegs.first().endReason)
+        assertTrue(session.completedLegs.first().distanceMeters >= 300.0)
+    }
+
+    @Test
+    fun `advance does not close a leg before the goal distance is reached`() {
+        val goal = RideGoal(GoalType.DISTANCE, "5 km", 5_000.0)
+        var session = freshSession().copy(mode = RideMode.GOAL, activeGoal = goal)
+        repeat(5) { session = RideSimulator.advance(session) }
+        assertEquals(RideMode.GOAL, session.mode)
+        assertTrue(session.completedLegs.isEmpty())
     }
 }

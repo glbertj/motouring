@@ -1,8 +1,14 @@
 package com.valid.motouring.simulation
 
 import com.valid.motouring.data.model.GeoPoint
+import com.valid.motouring.data.model.Leg
+import com.valid.motouring.data.model.LegEndReason
+import com.valid.motouring.data.model.RideMode
 import com.valid.motouring.data.model.RideSession
 import com.valid.motouring.data.model.RideSessionStatus
+import com.valid.motouring.data.model.activeLegDistanceMeters
+import com.valid.motouring.data.model.activeLegDurationSeconds
+import com.valid.motouring.data.model.avgSpeedKmh
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -66,12 +72,32 @@ class RideSimulator(
                 )
             }
 
-            return current.copy(
+            val advanced = current.copy(
                 elapsedSeconds = newElapsed,
                 distanceMeters = newDistance,
                 speedKmh = speed,
                 participants = newParticipants,
             )
+
+            val goal = current.activeGoal
+            return if (current.mode == RideMode.GOAL && goal != null && newDistance >= goal.targetDistanceMeters) {
+                val legDistance = advanced.activeLegDistanceMeters()
+                val legDuration = advanced.activeLegDurationSeconds()
+                val closedLeg = Leg(
+                    goal = goal,
+                    distanceMeters = legDistance,
+                    durationSeconds = legDuration,
+                    avgSpeedKmh = avgSpeedKmh(legDistance, legDuration),
+                    endReason = LegEndReason.GOAL_REACHED,
+                )
+                advanced.copy(
+                    mode = RideMode.ENDLESS,
+                    activeGoal = null,
+                    completedLegs = advanced.completedLegs + closedLeg,
+                )
+            } else {
+                advanced
+            }
         }
 
         private fun haversineMeters(a: GeoPoint, b: GeoPoint): Double {
