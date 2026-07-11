@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -52,7 +53,10 @@ fun MotouringNavHost(
     appContainer: AppContainer,
     navController: NavHostController = rememberNavController(),
 ) {
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+    Surface(
+        modifier = Modifier.fillMaxSize().safeDrawingPadding(),
+        color = MaterialTheme.colorScheme.background,
+    ) {
         NavHost(
             navController = navController,
             startDestination = Destinations.SPLASH,

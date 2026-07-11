@@ -17,6 +17,10 @@ sealed class BottomTab(val route: String, val label: String, val icon: ImageVect
     data object Profile : BottomTab(Destinations.PROFILE, "Profile", Icons.Filled.Person)
 
     companion object {
-        val all = listOf(Home, Nearby, Challenges, Rides, Profile)
+        // lazy: building this list eagerly in BottomTab's own <clinit> can race with a subclass
+        // (e.g. Home) being touched first from outside, which forces Home's INSTANCE field to be
+        // read here before it's assigned, yielding a null entry. Deferring the list construction
+        // to first access avoids that JVM class-init reentrancy.
+        val all: List<BottomTab> by lazy { listOf(Home, Nearby, Challenges, Rides, Profile) }
     }
 }
