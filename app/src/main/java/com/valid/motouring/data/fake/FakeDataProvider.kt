@@ -17,6 +17,8 @@ object FakeDataProvider {
         GeoPoint(lat = -6.1875, lng = 106.8271),
     )
 
+    val userLocation = GeoPoint(lat = -6.2088, lng = 106.8206)
+
     val users = listOf(
         User("u-me", "Rafi", R.drawable.ic_avatar_placeholder, listOf("v-1", "v-2")),
         User("u-2", "Dinda", R.drawable.ic_avatar_placeholder, listOf("v-3")),
@@ -116,6 +118,8 @@ object FakeDataProvider {
         PointOfInterest("p-4", "Auto Repair Kemang", PoiType.REPAIR_SHOP, GeoPoint(lat = -6.2608, lng = 106.8130), setOf(VehicleType.CAR), 4.4),
         PointOfInterest("p-5", "Pertamina Kuningan", PoiType.GAS_STATION, GeoPoint(lat = -6.2241, lng = 106.8306), setOf(VehicleType.MOTORCYCLE, VehicleType.CAR), 4.0),
         PointOfInterest("p-6", "Bengkel Jaya Motor 2", PoiType.REPAIR_SHOP, GeoPoint(lat = -6.1875, lng = 106.8271), setOf(VehicleType.MOTORCYCLE), 4.2),
+        PointOfInterest("p-7", "Warung Rindu Alam", PoiType.REST_STOP, GeoPoint(lat = -6.2015, lng = 106.8180), setOf(VehicleType.MOTORCYCLE, VehicleType.CAR), 4.5),
+        PointOfInterest("p-8", "Kopi Titik Temu", PoiType.REST_STOP, GeoPoint(lat = -6.2200, lng = 106.8250), setOf(VehicleType.MOTORCYCLE, VehicleType.CAR), 4.7),
     )
 
     val comments = listOf(
