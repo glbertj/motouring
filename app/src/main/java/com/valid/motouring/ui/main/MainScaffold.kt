@@ -24,6 +24,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -62,15 +65,15 @@ fun MainScaffold(
     outerNavController: NavHostController,
 ) {
     val tabNavController = rememberNavController()
+    var fabMenuOpen by remember { mutableStateOf(false) }
 
     Box(Modifier.fillMaxSize()) {
         Scaffold(
             bottomBar = {
                 MotouringBottomBar(
                     tabNavController = tabNavController,
-                    onFabStartSolo = { outerNavController.navigate(Destinations.START_RIDE) },
-                    onFabStartGroup = { outerNavController.navigate(Destinations.START_RIDE) },
-                    onFabPlanRoute = { outerNavController.navigate(Destinations.START_RIDE) },
+                    fabMenuOpen = fabMenuOpen,
+                    onFabToggle = { fabMenuOpen = !fabMenuOpen },
                 )
             },
         ) { innerPadding ->
@@ -137,15 +140,23 @@ fun MainScaffold(
                 }
             }
         }
+
+        if (fabMenuOpen) {
+            RideActionMenu(
+                onDismiss = { fabMenuOpen = false },
+                onStartSolo = { fabMenuOpen = false; outerNavController.navigate(Destinations.START_RIDE) },
+                onStartGroup = { fabMenuOpen = false; outerNavController.navigate(Destinations.START_RIDE) },
+                onPlanRoute = { fabMenuOpen = false; outerNavController.navigate(Destinations.START_RIDE) },
+            )
+        }
     }
 }
 
 @Composable
 private fun MotouringBottomBar(
     tabNavController: NavHostController,
-    onFabStartSolo: () -> Unit,
-    onFabStartGroup: () -> Unit,
-    onFabPlanRoute: () -> Unit,
+    fabMenuOpen: Boolean,
+    onFabToggle: () -> Unit,
 ) {
     val currentDestination = tabNavController.currentBackStackEntryAsState().value?.destination
     fun go(tab: BottomTab) = tabNavController.navigate(tab.route) {
@@ -178,9 +189,8 @@ private fun MotouringBottomBar(
             }
         }
         StartRideFab(
-            onStartSolo = onFabStartSolo,
-            onStartGroup = onFabStartGroup,
-            onPlanRoute = onFabPlanRoute,
+            open = fabMenuOpen,
+            onToggle = onFabToggle,
             modifier = Modifier.align(Alignment.TopCenter).offset(y = (-22).dp),
         )
     }

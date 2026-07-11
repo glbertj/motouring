@@ -19,9 +19,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,12 +32,10 @@ import com.valid.motouring.ui.theme.OffWhite
 
 @Composable
 fun StartRideFab(
-    onStartSolo: () -> Unit,
-    onStartGroup: () -> Unit,
-    onPlanRoute: () -> Unit,
+    open: Boolean,
+    onToggle: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var open by remember { mutableStateOf(false) }
     val rot by animateFloatAsState(if (open) 45f else 0f, MotouringMotion.press(), label = "fabRot")
 
     Box(modifier) {
@@ -49,7 +44,7 @@ fun StartRideFab(
             color = AccentPrimary,
             shape = RoundedCornerShape(20.dp),
             shadowElevation = 10.dp,
-            modifier = Modifier.size(60.dp).clickable { open = !open },
+            modifier = Modifier.size(60.dp).clickable { onToggle() },
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
@@ -61,22 +56,13 @@ fun StartRideFab(
             }
         }
     }
-
-    // The menu (scrim + items) is hosted as a full-screen overlay so its scrim covers the
-    // whole screen; the caller (MainScaffold) composes StartRideFab inside a top-level Box
-    // that sits above the Scaffold content.
-    if (open) {
-        RideActionMenu(
-            onDismiss = { open = false },
-            onStartSolo = { open = false; onStartSolo() },
-            onStartGroup = { open = false; onStartGroup() },
-            onPlanRoute = { open = false; onPlanRoute() },
-        )
-    }
 }
 
+// The menu (scrim + items) is hosted as a full-screen overlay so its scrim covers the whole
+// screen; MainScaffold composes it as a sibling of Scaffold (not inside the bottomBar slot) so
+// it doesn't affect Scaffold's measured bottom-bar height.
 @Composable
-private fun RideActionMenu(
+fun RideActionMenu(
     onDismiss: () -> Unit,
     onStartSolo: () -> Unit,
     onStartGroup: () -> Unit,
