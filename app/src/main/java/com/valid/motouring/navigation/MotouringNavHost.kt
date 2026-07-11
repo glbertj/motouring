@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.valid.motouring.data.model.VehicleType
 import com.valid.motouring.di.AppContainer
 import com.valid.motouring.ui.challenges.BadgeDetailScreen
 import com.valid.motouring.ui.challenges.BadgesScreen
@@ -38,6 +39,8 @@ import com.valid.motouring.ui.social.InviteRideScreen
 import com.valid.motouring.ui.social.InviteRideViewModel
 import com.valid.motouring.ui.social.PostDetailScreen
 import com.valid.motouring.ui.social.PostViewModel
+import com.valid.motouring.ui.rides.RideSessionScreen
+import com.valid.motouring.ui.rides.RideSessionViewModel
 import com.valid.motouring.ui.rides.RideSummaryScreen
 import com.valid.motouring.ui.rides.StartRideScreen
 import com.valid.motouring.ui.vehicle.VehicleGarageSetupScreen
@@ -155,8 +158,39 @@ fun MotouringNavHost(
             StartRideScreen(
                 vehicles = vehicles,
                 onInviteBuddiesClick = { navController.navigate(Destinations.INVITE_RIDE) },
-                onStartRide = { vehicleType, isGroup ->
+                onStartRide = { vehicleType, isGroup, goal ->
+                    appContainer.rideRepository.setPendingInitialGoal(goal)
                     navController.navigate(Destinations.rideSession(vehicleType.name, isGroup))
+                },
+            )
+        }
+        composable(
+            Destinations.RIDE_SESSION_PATTERN,
+            arguments = listOf(
+                navArgument("vehicleType") { type = NavType.StringType },
+                navArgument("isGroup") { type = NavType.BoolType },
+            ),
+        ) { backStackEntry ->
+            val vehicleType = VehicleType.valueOf(requireNotNull(backStackEntry.arguments?.getString("vehicleType")))
+            val isGroup = backStackEntry.arguments?.getBoolean("isGroup") ?: false
+            val initialGoal = appContainer.rideRepository.consumePendingInitialGoal()
+            val viewModel: RideSessionViewModel = viewModel(
+                factory = RideSessionViewModel.factory(
+                    vehicleType = vehicleType,
+                    isGroup = isGroup,
+                    initialGoal = initialGoal,
+                    userRepository = appContainer.userRepository,
+                    rideBuddyRepository = appContainer.rideBuddyRepository,
+                    rideRepository = appContainer.rideRepository,
+                    badgeRepository = appContainer.badgeRepository,
+                ),
+            )
+            RideSessionScreen(
+                viewModel = viewModel,
+                onEndRide = { historyEntryId ->
+                    navController.navigate(Destinations.rideSummary(historyEntryId)) {
+                        popUpTo(Destinations.MAIN)
+                    }
                 },
             )
         }
