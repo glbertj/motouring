@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,7 +24,9 @@ import androidx.compose.ui.unit.dp
 import com.valid.motouring.data.model.Badge
 import com.valid.motouring.data.model.RideHistoryEntry
 import com.valid.motouring.ui.components.BadgeChip
+import com.valid.motouring.ui.components.MotouringCard
 import com.valid.motouring.ui.components.SectionHeader
+import com.valid.motouring.ui.components.StaggeredEntrance
 import com.valid.motouring.ui.components.StatBlock
 
 @Composable
@@ -31,7 +35,7 @@ fun RideSummaryScreen(
     earnedBadges: List<Badge>,
     onDone: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
+    Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp)) {
         Text(text = "Ride Complete!", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -63,7 +67,30 @@ fun RideSummaryScreen(
             }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
+        val visibleLegs = entry.legs.filter { it.goal != null || it.distanceMeters >= 500.0 }
+        if (visibleLegs.isNotEmpty()) {
+            SectionHeader(title = "Stops")
+            visibleLegs.forEachIndexed { index, leg ->
+                StaggeredEntrance(index = index) {
+                    MotouringCard(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(text = leg.goal?.label ?: "Free ride", style = MaterialTheme.typography.titleMedium)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                Text(text = "${"%.1f".format(leg.distanceMeters / 1000.0)} km", style = MaterialTheme.typography.bodyMedium)
+                                Text(text = "${leg.durationSeconds / 60} min", style = MaterialTheme.typography.bodyMedium)
+                                Text(text = "${leg.avgSpeedKmh.toInt()} km/h", style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
 
         Button(onClick = onDone, modifier = Modifier.fillMaxWidth()) {
             Text("Done")
@@ -77,6 +104,25 @@ private fun RideSummaryScreenPreview() {
     com.valid.motouring.ui.theme.MotouringTheme {
         RideSummaryScreen(
             entry = com.valid.motouring.data.fake.FakeDataProvider.rideHistory.first(),
+            earnedBadges = com.valid.motouring.data.fake.FakeDataProvider.badges.filter { it.isEarned },
+            onDone = {},
+        )
+    }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun RideSummaryScreenWithStopsPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme {
+        val goalA = com.valid.motouring.data.model.RideGoal(com.valid.motouring.data.model.GoalType.DISTANCE, "10 km", 10_000.0)
+        val goalB = com.valid.motouring.data.model.RideGoal(com.valid.motouring.data.model.GoalType.DESTINATION, "Warung Kopi Susu", 18_000.0)
+        val legs = listOf(
+            com.valid.motouring.data.model.Leg(goalA, 10_000.0, 1_200, 30.0, com.valid.motouring.data.model.LegEndReason.GOAL_REACHED),
+            com.valid.motouring.data.model.Leg(goalB, 8_000.0, 960, 30.0, com.valid.motouring.data.model.LegEndReason.GOAL_REACHED),
+            com.valid.motouring.data.model.Leg(null, 2_000.0, 300, 24.0, com.valid.motouring.data.model.LegEndReason.RIDE_ENDED),
+        )
+        RideSummaryScreen(
+            entry = com.valid.motouring.data.fake.FakeDataProvider.rideHistory.first().copy(legs = legs),
             earnedBadges = com.valid.motouring.data.fake.FakeDataProvider.badges.filter { it.isEarned },
             onDone = {},
         )
