@@ -1291,12 +1291,15 @@ git commit -m "feat: add Nearby screen with map, filter chips, and draggable POI
 **Files:**
 - Create: `app/src/main/java/com/valid/motouring/ui/main/StartRideFab.kt`
 - Modify: `app/src/main/java/com/valid/motouring/ui/main/MainScaffold.kt`
+- Modify: `app/src/main/java/com/valid/motouring/ui/home/HomeScreen.kt` (add a Challenges trophy icon to the header)
 
 **Interfaces:**
 - Consumes: `NearbyScreen`, `NearbyViewModel` (Tasks 7-8); `appContainer.poiRepository`; `Destinations.START_RIDE`.
 - Produces: `@Composable fun StartRideFab(onStartSolo, onStartGroup, onPlanRoute)` and the 4-tab + FAB bottom bar.
 
 Visual spec: `.superpowers/brainstorm/188932-1783774300/content/bottom-bar.html`, option **B** — tap toggles a quick-action menu (Start Solo / Start Group / Plan a route); FAB icon ▶ → ✕.
+
+**Challenges relocation (decided with the user):** the bar becomes Home · Nearby · FAB · Rides · Profile — Challenges comes OFF the bar. Keep the `composable(BottomTab.Challenges.route)` entry in the nested NavHost exactly as it is (do NOT delete it), and surface Challenges via a trophy icon (`Icons.Filled.EmojiEvents`) in the Home screen header that navigates the tab controller to `BottomTab.Challenges.route`. This keeps ChallengesScreen and its detail routes reachable with one tap from Home.
 
 - [ ] **Step 1: Build the FAB + menu**
 
@@ -1430,7 +1433,7 @@ private val leftTabs = listOf(BottomTab.Home, BottomTab.Nearby)
 private val rightTabs = listOf(BottomTab.Rides, BottomTab.Profile)
 ```
 
-(Challenges moves off the bar — it remains reachable from its existing detail routes; if you prefer to keep 5 destinations, place Challenges under Profile's stack. For this spec the bar is Home · Nearby · FAB · Rides · Profile, matching the mockup.)
+(Challenges is not in either group — it stays a nested route reached via the Home header trophy icon per the decided relocation above. The bar is Home · Nearby · FAB · Rides · Profile, matching the mockup.)
 
 3. Structure:
 
@@ -1507,6 +1510,28 @@ private fun MotouringBottomBar(
 
 (Implement `TabItem` as a small column with the scaled `Icon` + `Text(label)`, colored by selection using `MaterialTheme.colorScheme.onSurface` vs `MutedDim`, reusing the existing animation. Add the necessary imports: `Row`, `Spacer`, `height`, `width`, `offset`, `Surface`, `Box`, `Arrangement`, `Alignment`, and the Nearby imports.)
 
+Keep the existing `Home`, `Challenges`, `Rides`, `Profile` `composable()` entries in the nested `NavHost` unchanged (Challenges stays a nested route). In the `Home` entry, thread a new `onOpenChallenges` lambda into `HomeScreen`:
+
+```kotlin
+                HomeScreen(
+                    viewModel = viewModel,
+                    onStartRideClick = { outerNavController.navigate(Destinations.START_RIDE) },
+                    onPostClick = { postId -> outerNavController.navigate(Destinations.postDetail(postId)) },
+                    onCreatePostClick = { outerNavController.navigate(Destinations.CREATE_POST) },
+                    onOpenChallenges = {
+                        tabNavController.navigate(BottomTab.Challenges.route) {
+                            popUpTo(tabNavController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                )
+```
+
+- [ ] **Step 2b: Add the Challenges trophy icon to the Home header**
+
+In `HomeScreen.kt`, add a parameter `onOpenChallenges: () -> Unit = {}` to the `HomeScreen` signature, and place a clickable `Icon(Icons.Filled.EmojiEvents, contentDescription = "Challenges")` in the screen's header row (top of the LazyColumn's header area, aligned end), calling `onOpenChallenges()`. Match the existing header styling; tint with `AccentPrimary`. Update the `@Preview` (if any) to pass `onOpenChallenges = {}`.
+
 - [ ] **Step 3: Build + full suite**
 
 Run: `./gradlew assembleDebug testDebugUnitTest`
@@ -1519,8 +1544,8 @@ Flag: user confirms the center FAB opens the 3-action menu (▶→✕), Start So
 - [ ] **Step 5: Commit**
 
 ```bash
-git add app/src/main/java/com/valid/motouring/ui/main/StartRideFab.kt app/src/main/java/com/valid/motouring/ui/main/MainScaffold.kt
-git commit -m "feat: center Start-Ride FAB with quick-action menu; enable Nearby tab"
+git add app/src/main/java/com/valid/motouring/ui/main/StartRideFab.kt app/src/main/java/com/valid/motouring/ui/main/MainScaffold.kt app/src/main/java/com/valid/motouring/ui/home/HomeScreen.kt
+git commit -m "feat: center Start-Ride FAB, enable Nearby tab, move Challenges to Home header"
 ```
 
 ---
