@@ -61,7 +61,8 @@ class RideSimulator(
     fun setGoal(goal: RideGoal) {
         val current = _session.value
         if (current.status == RideSessionStatus.ENDED) return
-        _session.value = current.copy(mode = RideMode.GOAL, activeGoal = goal)
+        val rebasedGoal = goal.copy(targetDistanceMeters = current.distanceMeters + goal.targetDistanceMeters)
+        _session.value = current.copy(mode = RideMode.GOAL, activeGoal = rebasedGoal)
     }
 
     fun simulateDrift() {

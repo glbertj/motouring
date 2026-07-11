@@ -1,10 +1,12 @@
 package com.valid.motouring.ui.rides
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +37,7 @@ fun GoalChoiceSheet(
             modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Row(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Row(modifier = Modifier.padding(horizontal = 16.dp).horizontalScroll(rememberScrollState())) {
             presets.forEach { goal ->
                 FilterChip(
                     selected = selected == goal,

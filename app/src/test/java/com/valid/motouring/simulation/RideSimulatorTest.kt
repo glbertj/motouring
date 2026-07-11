@@ -115,6 +115,43 @@ class RideSimulatorTest {
     }
 
     @Test
+    fun `setGoal rebases a preset's target to be distance-ahead-of-now, not an absolute checkpoint`() = runTest {
+        // Close out a first leg so cumulative distance is well above zero, mimicking a preset
+        // (e.g. "300 m further") picked again mid-ride via the goal-reached sheet or Endless chip.
+        val initialGoal = RideGoal(GoalType.DISTANCE, "300 m", 300.0)
+        var session = freshSession().copy(mode = RideMode.GOAL, activeGoal = initialGoal)
+        var ticks = 0
+        while (session.completedLegs.isEmpty() && ticks < 100) {
+            session = RideSimulator.advance(session)
+            ticks++
+        }
+        assertEquals(1, session.completedLegs.size)
+        assertEquals(RideMode.ENDLESS, session.mode)
+
+        val cumulativeDistanceAtSetGoal = session.distanceMeters
+        val presetGoal = RideGoal(GoalType.DISTANCE, "300 m", 300.0)
+        val simulator = RideSimulator(this, session)
+        simulator.setGoal(presetGoal)
+
+        val rebasedGoal = simulator.session.value.activeGoal
+        assertEquals(RideMode.GOAL, simulator.session.value.mode)
+        assertTrue(
+            "rebased target (${rebasedGoal?.targetDistanceMeters}) must exceed the cumulative " +
+                "distance already covered ($cumulativeDistanceAtSetGoal) at the moment setGoal " +
+                "was called, otherwise the goal would complete instantly",
+            (rebasedGoal?.targetDistanceMeters ?: 0.0) > cumulativeDistanceAtSetGoal,
+        )
+        assertEquals(cumulativeDistanceAtSetGoal + 300.0, rebasedGoal?.targetDistanceMeters ?: 0.0, 0.01)
+
+        // A realistic number of additional ticks (far fewer than needed to cover another 300 m)
+        // must NOT close a second leg instantly.
+        var afterSetGoalSession = simulator.session.value
+        repeat(3) { afterSetGoalSession = RideSimulator.advance(afterSetGoalSession) }
+        assertEquals(1, afterSetGoalSession.completedLegs.size)
+        assertEquals(RideMode.GOAL, afterSetGoalSession.mode)
+    }
+
+    @Test
     fun `simulateDrift closes the active leg as DRIFTED, emits an event, and falls back to ENDLESS`() = runTest {
         val goal = RideGoal(GoalType.DISTANCE, "10 km", 10_000.0)
         val simulator = RideSimulator(this, freshSession().copy(mode = RideMode.GOAL, activeGoal = goal))

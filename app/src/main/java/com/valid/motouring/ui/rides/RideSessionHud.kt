@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import com.valid.motouring.data.model.RideMode
 import com.valid.motouring.data.model.RideSession
-import com.valid.motouring.data.model.activeLegDistanceMeters
 import com.valid.motouring.data.model.activeLegDurationSeconds
 import com.valid.motouring.ui.components.InstrumentRing
 import com.valid.motouring.ui.components.StatBlock
@@ -48,8 +47,9 @@ fun RideSessionHud(session: RideSession, modifier: Modifier = Modifier) {
 
         val goal = session.activeGoal
         if (session.mode == RideMode.GOAL && goal != null) {
-            val remainingMeters = (goal.targetDistanceMeters - session.activeLegDistanceMeters()).coerceAtLeast(0.0)
-            val progress = (session.activeLegDistanceMeters() / goal.targetDistanceMeters).toFloat().coerceIn(0f, 1f)
+            val distanceMeters = session.distanceMeters
+            val remainingMeters = (goal.targetDistanceMeters - distanceMeters).coerceAtLeast(0.0)
+            val progress = (distanceMeters / goal.targetDistanceMeters).toFloat().coerceIn(0f, 1f)
             val almostThere = progress >= 0.9f
 
             Row(verticalAlignment = Alignment.CenterVertically) {
