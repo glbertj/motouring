@@ -13,6 +13,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -20,6 +22,7 @@ import com.valid.motouring.data.fake.FakeDataProvider
 import com.valid.motouring.data.model.Leg
 import com.valid.motouring.data.model.RideMode
 import com.valid.motouring.data.model.RideSessionEvent
+import com.valid.motouring.ui.theme.AccentPrimary
 import kotlinx.coroutines.delay
 
 @Composable
@@ -80,7 +83,8 @@ fun RideSessionScreen(
             RideSessionHud(session = session)
             RidePlaceholderRoute(
                 route = session.route,
-                markerPosition = session.participants.first().position,
+                markers = listOf(FallbackMarker(session.participants.first().position, AccentPrimary)),
+                modifier = Modifier.fillMaxWidth().height(160.dp),
             )
             if (session.mode == RideMode.ENDLESS) {
                 Button(onClick = {
