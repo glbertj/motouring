@@ -46,6 +46,7 @@ fun RideSessionScreen(
         if (celebrationLeg != null) {
             delay(2_500)
             showChoiceSheet = true
+            showDriftToast = false
         }
     }
 
@@ -82,7 +83,10 @@ fun RideSessionScreen(
                 markerPosition = session.participants.first().position,
             )
             if (session.mode == RideMode.ENDLESS) {
-                Button(onClick = { showChoiceSheet = true }) { Text("Set a goal") }
+                Button(onClick = {
+                    showChoiceSheet = true
+                    showDriftToast = false
+                }) { Text("Set a goal") }
             }
             Button(onClick = { viewModel.simulateDrift() }) { Text("Simulate off-route") }
             Button(onClick = { onEndRide(viewModel.endRide()) }) { Text("End Ride") }
@@ -114,6 +118,7 @@ fun RideSessionScreen(
                 onPickGoalClick = {
                     showUndoSnackbar = false
                     showChoiceSheet = true
+                    showDriftToast = false
                 },
                 modifier = Modifier.align(Alignment.BottomCenter),
             )
