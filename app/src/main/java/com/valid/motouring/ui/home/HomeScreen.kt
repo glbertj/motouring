@@ -1,5 +1,6 @@
 package com.valid.motouring.ui.home
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -8,9 +9,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +29,7 @@ import com.valid.motouring.ui.components.MotouringCard
 import com.valid.motouring.ui.components.PostCard
 import com.valid.motouring.ui.components.SectionHeader
 import com.valid.motouring.ui.components.StaggeredEntrance
+import com.valid.motouring.ui.theme.AccentPrimary
 import com.valid.motouring.ui.theme.MotouringTextStyles
 
 @Composable
@@ -32,12 +38,27 @@ fun HomeScreen(
     onStartRideClick: () -> Unit,
     onPostClick: (String) -> Unit,
     onCreatePostClick: () -> Unit,
+    onOpenChallenges: () -> Unit = {},
 ) {
     val posts by viewModel.posts.collectAsState()
     val featuredChallenge by viewModel.featuredChallenge.collectAsState()
 
     LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
         item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("Motouring", style = MaterialTheme.typography.titleLarge)
+                Icon(
+                    Icons.Filled.EmojiEvents,
+                    contentDescription = "Challenges",
+                    tint = AccentPrimary,
+                    modifier = Modifier.clickable(onClick = onOpenChallenges),
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
             Button(onClick = onStartRideClick, modifier = Modifier.fillMaxWidth()) {
                 Text("Start Group Ride")
             }
