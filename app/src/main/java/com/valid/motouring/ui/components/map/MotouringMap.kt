@@ -1,6 +1,7 @@
 package com.valid.motouring.ui.components.map
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -12,6 +13,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.valid.motouring.data.model.GeoPoint
 import com.valid.motouring.ui.rides.FallbackMarker
 import com.valid.motouring.ui.rides.RidePlaceholderRoute
+import com.valid.motouring.ui.theme.Charcoal950
 import com.valid.motouring.ui.theme.MotouringColors
 import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
@@ -38,7 +40,6 @@ private const val ROUTE_LAYER = "route-lyr"
 private const val MARKER_SOURCE = "marker-src"
 private const val MARKER_LAYER = "marker-lyr"
 
-@Composable
 fun MarkerStyle.color(): ComposeColor = when (this) {
     MarkerStyle.SELF -> MotouringColors.rider
     MarkerStyle.BUDDY -> MotouringColors.poiRest
@@ -89,6 +90,11 @@ fun MotouringMap(
                 updateRoute(style, polyline)
                 updateMarkers(style, markers, colorsArgb)
             }
+        }
+    }
+
+    LaunchedEffect(cameraTarget) {
+        mapView.getMapAsync { map ->
             map.animateCamera(
                 CameraUpdateFactory.newLatLngZoom(
                     LatLng(cameraTarget.target.lat, cameraTarget.target.lng),
@@ -150,7 +156,7 @@ private fun addMarkerSourceAndLayer(style: Style, markers: List<MapMarker>, colo
                     Expression.literal(7f),
                 ),
             ),
-            PropertyFactory.circleStrokeColor(android.graphics.Color.parseColor("#100E0C")),
+            PropertyFactory.circleStrokeColor(Charcoal950.toArgb()),
             PropertyFactory.circleStrokeWidth(2f),
         ),
     )
