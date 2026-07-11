@@ -90,6 +90,14 @@ object FakeDataProvider {
         ),
     )
 
+    val goalPresets = listOf(
+        RideGoal(GoalType.DISTANCE, "10 km", 10_000.0),
+        RideGoal(GoalType.DISTANCE, "25 km", 25_000.0),
+        RideGoal(GoalType.DISTANCE, "50 km", 50_000.0),
+        RideGoal(GoalType.DESTINATION, "Warung Kopi Susu", 8_000.0),
+        RideGoal(GoalType.DESTINATION, "Puncak Pass", 60_000.0),
+    )
+
     val badges = listOf(
         Badge("b-1", "First Ride", R.drawable.ic_badge_placeholder, "Complete your first tracked ride", "Complete 1 ride", true, 1_751_000_000),
         Badge("b-2", "Century Rider", R.drawable.ic_badge_placeholder, "Ride 100km in a single session", "Single ride >= 100km", false, null),
@@ -97,6 +105,8 @@ object FakeDataProvider {
         Badge("b-4", "Night Owl", R.drawable.ic_badge_placeholder, "Complete a ride starting after 10pm", "Ride start time >= 22:00", true, 1_752_800_500),
         Badge("b-5", "Early Bird", R.drawable.ic_badge_placeholder, "Complete a ride starting before 6am", "Ride start time <= 06:00", false, null),
         Badge("b-6", "Wrench Turner", R.drawable.ic_badge_placeholder, "Check in at 3 different repair shops", "3 unique repair shop check-ins", false, null),
+        Badge("b-7", "Explorer", R.drawable.ic_badge_placeholder, "Make 3 or more stops in a single ride", "3+ goal stops in one ride", false, null),
+        Badge("b-8", "Never Ending", R.drawable.ic_badge_placeholder, "Ride 50km or more without a goal", "50km+ on a single Endless leg", false, null),
     )
 
     val pois = listOf(
