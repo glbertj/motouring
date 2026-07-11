@@ -49,7 +49,7 @@ fun RideSessionHud(session: RideSession, modifier: Modifier = Modifier) {
         session.activeGoal?.let {
             Text(
                 "→ ${it.label}",
-                style = MaterialTheme.typography.labelLarge, color = MotouringColors.poiRepair,
+                style = MaterialTheme.typography.labelLarge, color = MotouringColors.goal,
                 modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
             )
         }

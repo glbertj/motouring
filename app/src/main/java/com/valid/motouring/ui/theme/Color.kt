@@ -18,6 +18,8 @@ val PoiFuel = Color(0xFF4ADE80)     // green
 val PoiRepair = AccentPrimary       // brand orange
 val PoiRest = Color(0xFFF5C34B)     // amber
 val RiderBlue = Color(0xFF7CB8FF)   // self / rider
+val RiderPurple = Color(0xFF8B7BE8)
+val RiderCoral = Color(0xFFFF8A65)
 val SpeakingGreen = Color(0xFF4ADE80)
 
 object MotouringColors {
@@ -32,5 +34,8 @@ object MotouringColors {
     val poiRepair = PoiRepair
     val poiRest = PoiRest
     val rider = RiderBlue
+    val riderPurple = RiderPurple
+    val riderCoral = RiderCoral
     val speaking = SpeakingGreen
+    val goal = AccentPrimary
 }

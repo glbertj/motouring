@@ -43,7 +43,7 @@ import com.valid.motouring.ui.theme.MotouringTextStyles
 import com.valid.motouring.ui.theme.Muted
 
 private val avatarColors = listOf(
-    Color(0xFF7CB8FF), Color(0xFFF5C34B), Color(0xFF8B7BE8), Color(0xFF4ADE80), Color(0xFFFF8A65),
+    MotouringColors.rider, MotouringColors.poiRest, MotouringColors.riderPurple, MotouringColors.poiFuel, MotouringColors.riderCoral,
 )
 private fun colorFor(id: String) = avatarColors[(id.hashCode() and 0x7fffffff) % avatarColors.size]
 
