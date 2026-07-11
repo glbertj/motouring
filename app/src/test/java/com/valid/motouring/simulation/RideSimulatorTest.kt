@@ -7,8 +7,12 @@ import com.valid.motouring.data.model.RideGoal
 import com.valid.motouring.data.model.RideMode
 import com.valid.motouring.data.model.RideParticipantState
 import com.valid.motouring.data.model.RideSession
+import com.valid.motouring.data.model.RideSessionEvent
 import com.valid.motouring.data.model.RideSessionStatus
 import com.valid.motouring.data.model.VehicleType
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -99,5 +103,50 @@ class RideSimulatorTest {
         repeat(5) { session = RideSimulator.advance(session) }
         assertEquals(RideMode.GOAL, session.mode)
         assertTrue(session.completedLegs.isEmpty())
+    }
+
+    @Test
+    fun `setGoal switches mode to GOAL and sets the goal`() = runTest {
+        val simulator = RideSimulator(this, freshSession())
+        val goal = RideGoal(GoalType.DISTANCE, "10 km", 10_000.0)
+        simulator.setGoal(goal)
+        assertEquals(RideMode.GOAL, simulator.session.value.mode)
+        assertEquals(goal, simulator.session.value.activeGoal)
+    }
+
+    @Test
+    fun `simulateDrift closes the active leg as DRIFTED, emits an event, and falls back to ENDLESS`() = runTest {
+        val goal = RideGoal(GoalType.DISTANCE, "10 km", 10_000.0)
+        val simulator = RideSimulator(this, freshSession().copy(mode = RideMode.GOAL, activeGoal = goal))
+        val eventDeferred = async { simulator.events.first() }
+        simulator.simulateDrift()
+        assertEquals(RideSessionEvent.DriftedToEndless, eventDeferred.await())
+        val session = simulator.session.value
+        assertEquals(RideMode.ENDLESS, session.mode)
+        assertEquals(null, session.activeGoal)
+        assertEquals(1, session.completedLegs.size)
+        assertEquals(LegEndReason.DRIFTED, session.completedLegs.first().endReason)
+    }
+
+    @Test
+    fun `simulateDrift is a no-op while already in ENDLESS mode`() = runTest {
+        val simulator = RideSimulator(this, freshSession())
+        simulator.simulateDrift()
+        assertTrue(simulator.session.value.completedLegs.isEmpty())
+    }
+
+    @Test
+    fun `stop closes the active leg as RIDE_ENDED and ends the session`() = runTest {
+        val goal = RideGoal(GoalType.DISTANCE, "10 km", 10_000.0)
+        val simulator = RideSimulator(
+            this,
+            freshSession().copy(mode = RideMode.GOAL, activeGoal = goal, distanceMeters = 4_000.0, elapsedSeconds = 500),
+        )
+        simulator.stop()
+        val session = simulator.session.value
+        assertEquals(RideSessionStatus.ENDED, session.status)
+        assertEquals(1, session.completedLegs.size)
+        assertEquals(LegEndReason.RIDE_ENDED, session.completedLegs.first().endReason)
+        assertEquals(4_000.0, session.completedLegs.first().distanceMeters, 0.01)
     }
 }

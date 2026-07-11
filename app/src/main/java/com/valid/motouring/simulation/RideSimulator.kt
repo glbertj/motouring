@@ -3,8 +3,10 @@ package com.valid.motouring.simulation
 import com.valid.motouring.data.model.GeoPoint
 import com.valid.motouring.data.model.Leg
 import com.valid.motouring.data.model.LegEndReason
+import com.valid.motouring.data.model.RideGoal
 import com.valid.motouring.data.model.RideMode
 import com.valid.motouring.data.model.RideSession
+import com.valid.motouring.data.model.RideSessionEvent
 import com.valid.motouring.data.model.RideSessionStatus
 import com.valid.motouring.data.model.activeLegDistanceMeters
 import com.valid.motouring.data.model.activeLegDurationSeconds
@@ -12,8 +14,11 @@ import com.valid.motouring.data.model.avgSpeedKmh
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -29,6 +34,10 @@ class RideSimulator(
 ) {
     private val _session = MutableStateFlow(initialSession)
     val session: StateFlow<RideSession> = _session.asStateFlow()
+
+    private val _events = MutableSharedFlow<RideSessionEvent>(extraBufferCapacity = 1)
+    val events: SharedFlow<RideSessionEvent> = _events.asSharedFlow()
+
     private var job: Job? = null
 
     fun start() {
@@ -36,14 +45,63 @@ class RideSimulator(
         job = scope.launch {
             while (isActive) {
                 delay(TICK_INTERVAL_MS)
-                _session.value = advance(_session.value)
+                val previous = _session.value
+                val next = advance(previous)
+                _session.value = next
+                if (next.completedLegs.size > previous.completedLegs.size) {
+                    val closedLeg = next.completedLegs.last()
+                    if (closedLeg.endReason == LegEndReason.GOAL_REACHED) {
+                        _events.emit(RideSessionEvent.GoalReached(closedLeg))
+                    }
+                }
             }
         }
     }
 
+    fun setGoal(goal: RideGoal) {
+        val current = _session.value
+        if (current.status == RideSessionStatus.ENDED) return
+        _session.value = current.copy(mode = RideMode.GOAL, activeGoal = goal)
+    }
+
+    fun simulateDrift() {
+        val current = _session.value
+        if (current.mode != RideMode.GOAL || current.activeGoal == null) return
+        val legDistance = current.activeLegDistanceMeters()
+        val legDuration = current.activeLegDurationSeconds()
+        val closedLeg = Leg(
+            goal = current.activeGoal,
+            distanceMeters = legDistance,
+            durationSeconds = legDuration,
+            avgSpeedKmh = avgSpeedKmh(legDistance, legDuration),
+            endReason = LegEndReason.DRIFTED,
+        )
+        _session.value = current.copy(
+            mode = RideMode.ENDLESS,
+            activeGoal = null,
+            completedLegs = current.completedLegs + closedLeg,
+        )
+        scope.launch { _events.emit(RideSessionEvent.DriftedToEndless) }
+    }
+
     fun stop() {
         job?.cancel()
-        _session.value = _session.value.copy(status = RideSessionStatus.ENDED)
+        val current = _session.value
+        if (current.status == RideSessionStatus.ENDED) return
+        val legDistance = current.activeLegDistanceMeters()
+        val legDuration = current.activeLegDurationSeconds()
+        val tailLeg = Leg(
+            goal = current.activeGoal,
+            distanceMeters = legDistance,
+            durationSeconds = legDuration,
+            avgSpeedKmh = avgSpeedKmh(legDistance, legDuration),
+            endReason = LegEndReason.RIDE_ENDED,
+        )
+        _session.value = current.copy(
+            status = RideSessionStatus.ENDED,
+            activeGoal = null,
+            completedLegs = current.completedLegs + tailLeg,
+        )
     }
 
     companion object {
