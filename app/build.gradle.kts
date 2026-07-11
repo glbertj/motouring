@@ -69,9 +69,9 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     debugImplementation("androidx.compose.ui:ui-tooling")
 
-    // Mapbox dependencies are added in Task 15, the first task that uses them —
-    // resolving them requires an authenticated Mapbox maven repo (also added in Task 15),
-    // so keeping them out until then lets Tasks 1-14 build/test with zero external tokens.
+    // MapLibre GL Native — free vector maps via token-free OpenFreeMap tiles.
+    // MapLibre is the open-source fork of Mapbox GL, so a later Mapbox swap is a dependency change.
+    implementation("org.maplibre.gl:android-sdk:13.3.1")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
 
