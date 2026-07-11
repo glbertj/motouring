@@ -71,7 +71,10 @@ dependencies {
 
     // MapLibre GL Native — free vector maps via token-free OpenFreeMap tiles.
     // MapLibre is the open-source fork of Mapbox GL, so a later Mapbox swap is a dependency change.
-    implementation("org.maplibre.gl:android-sdk:13.3.1")
+    // Use the OpenGL ES variant, NOT the plain `android-sdk` artifact: since MapLibre 13.0.0 the
+    // plain artifact defaults to a Vulkan backend that SIGSEGVs (null-deref in MapRenderer::render on
+    // the render thread) on many devices. Same public API, just a stable native backend.
+    implementation("org.maplibre.gl:android-sdk-opengl:13.3.1")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
 
