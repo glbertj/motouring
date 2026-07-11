@@ -29,6 +29,7 @@ In scope:
 - Extending **Start Ride** (initial goal selection) and **Ride Summary** (leg-by-leg breakdown) — both already exist
 - A quick "undo" affordance when the choice sheet auto-dismisses to Endless
 - Two new badges tied to ride-mode behavior (Explorer, Never Ending)
+- Auto-generated multi-stop trip titles, a "time since last stop" HUD label in Endless, and an "almost there" ring cue near goal completion
 - Compose `@Preview` coverage for new/changed plain-state composables
 
 Out of scope (deferred to other specs or explicitly not built):
@@ -102,6 +103,8 @@ sealed interface RideSessionEvent {
 - Center: a static styled polyline illustration (using `Charcoal`/`AccentPrimary` tokens) rendering `RideSession.route`, with the animated dot marker positioned by `RideSimulator`'s existing `pointAlongRoute` logic (unchanged). Built so the illustration can be swapped for a real Mapbox `MapView` later without any change to `RideSimulator` or `RideSession`.
 - Group rider list + voice-call bar: unchanged from the original spec.
 - Persistent bottom chip **"Set a goal"** — visible only while `mode == ENDLESS`; opens the goal picker sheet (same preset list as Start Ride) and turns the pick into the current leg's goal.
+- While `mode == ENDLESS`, a quiet HUD label shows time since the leg started (e.g. "42 min since last stop") — derived directly from `activeLeg.durationSeconds`, no new state. Useful signal for a rider deciding whether to set a new goal.
+- While `mode == GOAL`, once `activeLeg` crosses ~90% of `activeGoal.targetDistanceMeters`, the `InstrumentRing` around the HUD shifts to a subtle "almost there" treatment (e.g. brighter fill/glow) so the celebration has a lead-up rather than appearing out of nowhere. Pure presentation on top of the existing ring — no new component or state.
 - Demo/debug affordance: a **"Simulate off-route"** action (overflow menu), enabled only during a `GOAL` leg — manually triggers `DriftedToEndless` for controllable, deterministic demoing rather than relying on a random timer or hidden route-choice logic.
 
 **Goal-reached moment:** `GoalReached` → a celebratory overlay (spring-based burst animation per the Analog Dash motion system, showing that leg's recap: distance/time) plays for ~2-3s on top of the still-live HUD (tracking is never paused) → settles into a non-blocking bottom sheet: "Nice! Pick a new goal, or keep riding" with preset options plus an explicit "Go Endless" button. No response within a few seconds auto-dismisses into Endless, consistent with Endless being the default fallback.
@@ -114,7 +117,9 @@ If it auto-dismisses without a response, a brief snackbar appears for ~4-5s: "We
 
 ## Ride Summary Integration
 
-`RideHistoryEntry` (existing) gains one new field: `legs: List<Leg> = emptyList()`. `RideSummaryScreen` (existing) keeps its current aggregate header (the existing `StatBlock` row for distance/duration/avg speed, route preview, `BadgeChip` row) and adds a new **"Stops"** section below it, using the existing `SectionHeader` component (as the Badges section already does): one row per entry in `entry.legs`, in order, showing that leg's goal label, distance, duration, and avg speed. A tail Endless leg with no goal (`goal == null`) is labeled "Free ride" if it has nonzero distance, and omitted if negligible/zero. Leg rows use `MotouringCard` with `StaggeredEntrance`, consistent with how other list content is staggered elsewhere in the design system.
+`RideHistoryEntry` (existing) gains one new field: `legs: List<Leg> = emptyList()`. When a ride has 2+ legs, `title` is auto-composed from the stops instead of using the existing generic title (e.g. "Home → 25km → Warung Kopi Susu → Free ride"), so multi-stop rides read as distinct at a glance in Rides History — single-leg rides keep today's generic title unchanged.
+
+`RideSummaryScreen` (existing) keeps its current aggregate header (the existing `StatBlock` row for distance/duration/avg speed, route preview, `BadgeChip` row) and adds a new **"Stops"** section below it, using the existing `SectionHeader` component (as the Badges section already does): one row per entry in `entry.legs`, in order, showing that leg's goal label, distance, duration, and avg speed. A tail Endless leg with no goal (`goal == null`) is labeled "Free ride" if it has nonzero distance, and omitted if negligible/zero. Leg rows use `MotouringCard` with `StaggeredEntrance`, consistent with how other list content is staggered elsewhere in the design system.
 
 ## Gamification Tie-in
 
@@ -129,7 +134,7 @@ Unlike the app's other badges (which are static seed flags with no live computat
 
 This spec does not touch `ui/theme/*` or `ui/components/*` (owned by the Analog Dash track) — it consumes existing tokens:
 
-- `InstrumentRing` — shown during an active `GOAL` leg, open center slot displaying the mono distance-remaining value as progress toward the goal
+- `InstrumentRing` — shown during an active `GOAL` leg, open center slot displaying the mono distance-remaining value as progress toward the goal; shifts to an "almost there" fill/glow past ~90% progress
 - `MotouringCard` — choice sheet and Ride Summary leg rows
 - `StaggeredEntrance` — Ride Summary leg list
 - `IBM Plex Mono` — all HUD numeral readouts
