@@ -1,6 +1,9 @@
 package com.valid.motouring.ui.components.map
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.graphics.toArgb
@@ -10,7 +13,7 @@ import com.valid.motouring.data.model.GeoPoint
 import com.valid.motouring.ui.rides.FallbackMarker
 import com.valid.motouring.ui.rides.RidePlaceholderRoute
 import com.valid.motouring.ui.theme.MotouringColors
-import org.maplibre.android.camera.CameraPosition
+import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.Style
@@ -61,24 +64,48 @@ fun MotouringMap(
 
     val colorsArgb = MarkerStyle.entries.associate { it.name to it.color().toArgb() }
     val mapView = rememberMapViewWithLifecycle()
+    val currentOnMarkerClick by rememberUpdatedState(onMarkerClick)
+    // Plain (non-State) flag: guards setStyle() so it fires exactly once per
+    // MapView instance, even if recomposition races the async style load.
+    val styleSetupStarted = remember { booleanArrayOf(false) }
 
     AndroidView(factory = { mapView }, modifier = modifier) { mv ->
         mv.getMapAsync { map ->
-            map.setStyle(Style.Builder().fromUri(STYLE_URL)) { style ->
-                renderRoute(style, polyline)
-                renderMarkers(style, markers, colorsArgb)
-                map.setOnMarkerLayerClick(onMarkerClick)
+            val style = map.style
+            if (style == null) {
+                if (!styleSetupStarted[0]) {
+                    styleSetupStarted[0] = true
+                    map.setStyle(Style.Builder().fromUri(STYLE_URL)) { loadedStyle ->
+                        addRouteSourceAndLayer(loadedStyle, polyline)
+                        addMarkerSourceAndLayer(loadedStyle, markers, colorsArgb)
+                        map.setOnMarkerLayerClick { currentOnMarkerClick(it) }
+                    }
+                }
+                // Style still loading on this pass; the next recomposition's
+                // update (or the setStyle callback above) will populate it.
+            } else {
+                // Style already set up once: update sources in place instead
+                // of re-adding sources/layers or re-registering the listener.
+                updateRoute(style, polyline)
+                updateMarkers(style, markers, colorsArgb)
             }
-            map.cameraPosition = CameraPosition.Builder()
-                .target(LatLng(cameraTarget.target.lat, cameraTarget.target.lng))
-                .zoom(cameraTarget.zoom).build()
+            map.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(cameraTarget.target.lat, cameraTarget.target.lng),
+                    cameraTarget.zoom,
+                ),
+            )
         }
     }
 }
 
-private fun renderRoute(style: Style, polyline: MapPolyline?) {
-    if (polyline == null || polyline.points.size < 2) return
-    val line = LineString.fromLngLats(polyline.points.map { Point.fromLngLat(it.lng, it.lat) })
+private fun routeGeometry(polyline: MapPolyline?): LineString? {
+    if (polyline == null || polyline.points.size < 2) return null
+    return LineString.fromLngLats(polyline.points.map { Point.fromLngLat(it.lng, it.lat) })
+}
+
+private fun addRouteSourceAndLayer(style: Style, polyline: MapPolyline?) {
+    val line = routeGeometry(polyline) ?: return
     style.addSource(GeoJsonSource(ROUTE_SOURCE, line))
     style.addLayer(
         LineLayer(ROUTE_LAYER, ROUTE_SOURCE).withProperties(
@@ -88,7 +115,12 @@ private fun renderRoute(style: Style, polyline: MapPolyline?) {
     )
 }
 
-private fun renderMarkers(style: Style, markers: List<MapMarker>, colorsArgb: Map<String, Int>) {
+private fun updateRoute(style: Style, polyline: MapPolyline?) {
+    val line = routeGeometry(polyline) ?: return
+    style.getSourceAs<GeoJsonSource>(ROUTE_SOURCE)?.setGeoJson(line)
+}
+
+private fun markerFeatureCollection(markers: List<MapMarker>): FeatureCollection {
     val features = markers.map { m ->
         Feature.fromGeometry(Point.fromLngLat(m.point.lng, m.point.lat)).apply {
             addStringProperty("id", m.id)
@@ -96,7 +128,11 @@ private fun renderMarkers(style: Style, markers: List<MapMarker>, colorsArgb: Ma
             addBooleanProperty("selected", m.selected)
         }
     }
-    style.addSource(GeoJsonSource(MARKER_SOURCE, FeatureCollection.fromFeatures(features)))
+    return FeatureCollection.fromFeatures(features)
+}
+
+private fun addMarkerSourceAndLayer(style: Style, markers: List<MapMarker>, colorsArgb: Map<String, Int>) {
+    style.addSource(GeoJsonSource(MARKER_SOURCE, markerFeatureCollection(markers)))
     // color per feature via a match expression on the "style" property
     style.addLayer(
         CircleLayer(MARKER_LAYER, MARKER_SOURCE).withProperties(
@@ -118,6 +154,10 @@ private fun renderMarkers(style: Style, markers: List<MapMarker>, colorsArgb: Ma
             PropertyFactory.circleStrokeWidth(2f),
         ),
     )
+}
+
+private fun updateMarkers(style: Style, markers: List<MapMarker>, colorsArgb: Map<String, Int>) {
+    style.getSourceAs<GeoJsonSource>(MARKER_SOURCE)?.setGeoJson(markerFeatureCollection(markers))
 }
 
 private fun matchStops(colorsArgb: Map<String, Int>) =
