@@ -1,11 +1,16 @@
 package com.valid.motouring.ui.rides
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -13,8 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -22,7 +25,6 @@ import com.valid.motouring.data.fake.FakeDataProvider
 import com.valid.motouring.data.model.Leg
 import com.valid.motouring.data.model.RideMode
 import com.valid.motouring.data.model.RideSessionEvent
-import com.valid.motouring.ui.theme.AccentPrimary
 import kotlinx.coroutines.delay
 
 @Composable
@@ -79,21 +81,18 @@ fun RideSessionScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            RideSessionHud(session = session)
-            RidePlaceholderRoute(
-                route = session.route,
-                markers = listOf(FallbackMarker(session.participants.first().position, AccentPrimary)),
-                modifier = Modifier.fillMaxWidth().height(160.dp),
-            )
-            if (session.mode == RideMode.ENDLESS) {
-                Button(onClick = {
-                    showChoiceSheet = true
-                    showDriftToast = false
-                }) { Text("Set a goal") }
+        Column(modifier = Modifier.fillMaxSize()) {
+            RideSessionHud(session = session, modifier = Modifier.weight(0.55f).fillMaxWidth())
+            Column(modifier = Modifier.weight(0.45f).fillMaxWidth()) {
+                RideDashboard(session = session)
+                Spacer(Modifier.weight(1f))
+                RideDebugControls(
+                    showSetGoal = session.mode == RideMode.ENDLESS,
+                    onSetGoal = { showChoiceSheet = true; showDriftToast = false },
+                    onDrift = { viewModel.simulateDrift() },
+                    onEnd = { onEndRide(viewModel.endRide()) },
+                )
             }
-            Button(onClick = { viewModel.simulateDrift() }) { Text("Simulate off-route") }
-            Button(onClick = { onEndRide(viewModel.endRide()) }) { Text("End Ride") }
         }
 
         val leg = celebrationLeg
@@ -131,5 +130,23 @@ fun RideSessionScreen(
         if (showDriftToast) {
             DriftToast(modifier = Modifier.align(Alignment.BottomCenter))
         }
+    }
+}
+
+@Composable
+private fun RideDebugControls(
+    showSetGoal: Boolean,
+    onSetGoal: () -> Unit,
+    onDrift: () -> Unit,
+    onEnd: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        if (showSetGoal) TextButton(onClick = onSetGoal) { Text("Set goal") }
+        TextButton(onClick = onDrift) { Text("Off-route") }
+        Spacer(Modifier.weight(1f))
+        Button(onClick = onEnd) { Text("End Ride") }
     }
 }
