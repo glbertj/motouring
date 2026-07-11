@@ -47,6 +47,8 @@ data class RideSession(
     val mode: RideMode = RideMode.ENDLESS,
     val activeGoal: RideGoal? = null,
     val completedLegs: List<Leg> = emptyList(),
+    val maxSpeedKmh: Double = 0.0,
+    val elevationGainMeters: Double = 0.0,
 )
 
 fun RideSession.activeLegDistanceMeters(): Double =
@@ -57,3 +59,6 @@ fun RideSession.activeLegDurationSeconds(): Long =
 
 fun avgSpeedKmh(distanceMeters: Double, durationSeconds: Long): Double =
     if (durationSeconds > 0) (distanceMeters / 1000.0) / (durationSeconds / 3600.0) else 0.0
+
+fun RideSession.toGoalMeters(): Double =
+    activeGoal?.let { (it.targetDistanceMeters - distanceMeters).coerceAtLeast(0.0) } ?: 0.0

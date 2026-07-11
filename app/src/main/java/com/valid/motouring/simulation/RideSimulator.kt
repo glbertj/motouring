@@ -131,11 +131,14 @@ class RideSimulator(
                 )
             }
 
+            val elevationDelta = (2.0 + 1.5 * sin(newElapsed / 7.0)).coerceAtLeast(0.0)
             val advanced = current.copy(
                 elapsedSeconds = newElapsed,
                 distanceMeters = newDistance,
                 speedKmh = speed,
                 participants = newParticipants,
+                maxSpeedKmh = maxOf(current.maxSpeedKmh, speed),
+                elevationGainMeters = current.elevationGainMeters + elevationDelta,
             )
 
             val goal = current.activeGoal
