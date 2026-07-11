@@ -10,4 +10,5 @@ data class RideHistoryEntry(
     val routePreviewRes: Int,
     val photoResList: List<Int>,
     val completedAtEpochSeconds: Long,
+    val legs: List<Leg> = emptyList(),
 )
