@@ -136,4 +136,32 @@ object FakeDataProvider {
         Notification("n-3", NotificationType.CHALLENGE_PROGRESS, "You're 62% through Ride 100km This Week", 1_752_950_000, true),
         Notification("n-4", NotificationType.SOCIAL, "Dinda commented on your post", 1_752_000_900, true),
     )
+
+    fun previewRideSessionWithGoal(): RideSession = RideSession(
+        id = "preview-goal",
+        vehicleType = VehicleType.MOTORCYCLE,
+        route = sampleRoute,
+        participants = listOf(RideParticipantState(currentUserId, "Rafi", R.drawable.ic_avatar_placeholder, sampleRoute.first())),
+        distanceMeters = 6_000.0,
+        speedKmh = 28.0,
+        elapsedSeconds = 720,
+        status = RideSessionStatus.ACTIVE,
+        mode = RideMode.GOAL,
+        activeGoal = RideGoal(GoalType.DISTANCE, "10 km", 10_000.0),
+    )
+
+    fun previewRideSessionEndless(): RideSession = RideSession(
+        id = "preview-endless",
+        vehicleType = VehicleType.MOTORCYCLE,
+        route = sampleRoute,
+        participants = listOf(RideParticipantState(currentUserId, "Rafi", R.drawable.ic_avatar_placeholder, sampleRoute.first())),
+        distanceMeters = 12_500.0,
+        speedKmh = 26.0,
+        elapsedSeconds = 1_500,
+        status = RideSessionStatus.ACTIVE,
+        mode = RideMode.ENDLESS,
+        completedLegs = listOf(
+            Leg(RideGoal(GoalType.DISTANCE, "10 km", 10_000.0), 10_000.0, 1_200, 30.0, LegEndReason.GOAL_REACHED),
+        ),
+    )
 }
