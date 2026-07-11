@@ -29,13 +29,13 @@ object FakeDataProvider {
     )
 
     val vehicles = listOf(
-        Vehicle("v-1", "u-me", VehicleType.MOTORCYCLE, "Yamaha", "MT-25", 2023, R.drawable.ic_vehicle_motorcycle_placeholder),
-        Vehicle("v-2", "u-me", VehicleType.CAR, "Toyota", "Raize", 2022, R.drawable.ic_vehicle_car_placeholder),
-        Vehicle("v-3", "u-2", VehicleType.MOTORCYCLE, "Honda", "CBR150R", 2021, R.drawable.ic_vehicle_motorcycle_placeholder),
-        Vehicle("v-4", "u-3", VehicleType.CAR, "Honda", "Civic", 2020, R.drawable.ic_vehicle_car_placeholder),
-        Vehicle("v-5", "u-4", VehicleType.MOTORCYCLE, "Kawasaki", "Z250", 2022, R.drawable.ic_vehicle_motorcycle_placeholder),
-        Vehicle("v-6", "u-5", VehicleType.MOTORCYCLE, "Yamaha", "R15", 2023, R.drawable.ic_vehicle_motorcycle_placeholder),
-        Vehicle("v-7", "u-6", VehicleType.CAR, "Mazda", "CX-5", 2021, R.drawable.ic_vehicle_car_placeholder),
+        Vehicle("v-1", "u-me", VehicleType.MOTORCYCLE, "Yamaha", "MT-25", 2023, R.drawable.img_vehicle_moto),
+        Vehicle("v-2", "u-me", VehicleType.CAR, "Toyota", "Raize", 2022, R.drawable.img_vehicle_car),
+        Vehicle("v-3", "u-2", VehicleType.MOTORCYCLE, "Honda", "CBR150R", 2021, R.drawable.img_vehicle_moto),
+        Vehicle("v-4", "u-3", VehicleType.CAR, "Honda", "Civic", 2020, R.drawable.img_vehicle_car),
+        Vehicle("v-5", "u-4", VehicleType.MOTORCYCLE, "Kawasaki", "Z250", 2022, R.drawable.img_vehicle_moto),
+        Vehicle("v-6", "u-5", VehicleType.MOTORCYCLE, "Yamaha", "R15", 2023, R.drawable.img_vehicle_moto),
+        Vehicle("v-7", "u-6", VehicleType.CAR, "Mazda", "CX-5", 2021, R.drawable.img_vehicle_car),
     )
 
     val rideBuddies = listOf(
@@ -47,9 +47,9 @@ object FakeDataProvider {
     )
 
     val rideHistory = listOf(
-        RideHistoryEntry("r-1", "Sudirman Sunday Loop", VehicleType.MOTORCYCLE, 18_400.0, 2_700, 24.5, R.drawable.ic_route_preview_placeholder, listOf(R.drawable.ic_photo_placeholder), 1_752_000_000),
-        RideHistoryEntry("r-2", "Weekend Car Meet", VehicleType.CAR, 42_000.0, 5_400, 28.0, R.drawable.ic_route_preview_placeholder, listOf(R.drawable.ic_photo_placeholder, R.drawable.ic_photo_placeholder), 1_752_400_000),
-        RideHistoryEntry("r-3", "Night Ride to Puncak", VehicleType.MOTORCYCLE, 65_000.0, 9_000, 26.0, R.drawable.ic_route_preview_placeholder, emptyList(), 1_752_800_000),
+        RideHistoryEntry("r-1", "Sudirman Sunday Loop", VehicleType.MOTORCYCLE, 18_400.0, 2_700, 24.5, R.drawable.img_road_1, listOf(R.drawable.img_road_2), 1_752_000_000),
+        RideHistoryEntry("r-2", "Weekend Car Meet", VehicleType.CAR, 42_000.0, 5_400, 28.0, R.drawable.img_road_3, listOf(R.drawable.img_road_4, R.drawable.img_road_5), 1_752_400_000),
+        RideHistoryEntry("r-3", "Night Ride to Puncak", VehicleType.MOTORCYCLE, 65_000.0, 9_000, 26.0, R.drawable.img_road_6, emptyList(), 1_752_800_000),
     )
 
     val challenges = listOf(
@@ -129,9 +129,9 @@ object FakeDataProvider {
     )
 
     val posts = listOf(
-        Post("post-1", "u-me", "Rafi", R.drawable.ic_avatar_placeholder, listOf(R.drawable.ic_photo_placeholder), "Sunday morning loop around Sudirman", "r-1", 12, false, listOf("cm-1", "cm-2"), 1_752_000_100),
-        Post("post-2", "u-6", "Nadia", R.drawable.ic_avatar_placeholder, listOf(R.drawable.ic_photo_placeholder, R.drawable.ic_photo_placeholder), "Weekend car meet turnout was huge", null, 24, true, listOf("cm-3"), 1_752_400_100),
-        Post("post-3", "u-2", "Dinda", R.drawable.ic_avatar_placeholder, listOf(R.drawable.ic_photo_placeholder), "New chain and sprocket installed", null, 8, false, emptyList(), 1_752_600_000),
+        Post("post-1", "u-me", "Rafi", R.drawable.ic_avatar_placeholder, listOf(R.drawable.img_road_1), "Sunday morning loop around Sudirman", "r-1", 12, false, listOf("cm-1", "cm-2"), 1_752_000_100),
+        Post("post-2", "u-6", "Nadia", R.drawable.ic_avatar_placeholder, listOf(R.drawable.img_road_2, R.drawable.img_road_3), "Weekend car meet turnout was huge", null, 24, true, listOf("cm-3"), 1_752_400_100),
+        Post("post-3", "u-2", "Dinda", R.drawable.ic_avatar_placeholder, listOf(R.drawable.img_road_4), "New chain and sprocket installed", null, 8, false, emptyList(), 1_752_600_000),
     )
 
     val notifications = listOf(
