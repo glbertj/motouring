@@ -38,6 +38,31 @@ fun DriftToast(modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
+fun RegroupBanner(message: String, modifier: Modifier = Modifier) {
+    MotouringCard(modifier = modifier.fillMaxWidth().padding(16.dp)) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = com.valid.motouring.ui.theme.MotouringColors.riderCoral,
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+        )
+    }
+}
+
+@Composable
+fun FuelCallBanner(fromName: String, poiName: String?, modifier: Modifier = Modifier) {
+    val text = if (poiName != null) "$fromName needs fuel — rally at $poiName" else "$fromName needs fuel — find a stop"
+    MotouringCard(modifier = modifier.fillMaxWidth().padding(16.dp)) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = com.valid.motouring.ui.theme.MotouringColors.poiFuel,
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+        )
+    }
+}
+
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true)
 @Composable
 private fun UndoGoalSnackbarPreview() {
@@ -52,4 +77,16 @@ private fun DriftToastPreview() {
     com.valid.motouring.ui.theme.MotouringTheme {
         DriftToast()
     }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun RegroupBannerPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme { RegroupBanner("Bagas fell behind — regrouping") }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Composable
+private fun FuelCallBannerPreview() {
+    com.valid.motouring.ui.theme.MotouringTheme { FuelCallBanner("Dinda", "Pertamina Sudirman") }
 }
