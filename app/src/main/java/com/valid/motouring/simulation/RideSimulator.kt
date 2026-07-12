@@ -48,6 +48,12 @@ class RideSimulator(
                 val previous = _session.value
                 val next = advance(previous)
                 _session.value = next
+                next.participants.forEachIndexed { i, p ->
+                    val was = previous.participants.getOrNull(i)?.hasFallenBehind ?: false
+                    if (p.hasFallenBehind && !was) {
+                        _events.emit(RideSessionEvent.RiderFellBehind(p))
+                    }
+                }
                 if (next.completedLegs.size > previous.completedLegs.size) {
                     val closedLeg = next.completedLegs.last()
                     if (closedLeg.endReason == LegEndReason.GOAL_REACHED) {
@@ -110,6 +116,14 @@ class RideSimulator(
         private const val BASE_SPEED_KMH = 28.0
         private const val SPEED_VARIANCE_KMH = 6.0
         private const val SPEAKER_ROTATE_EVERY_SECONDS = 4L
+        private const val PACK_SLOT_GAP_METERS = 90.0
+        private const val OSC_AMPLITUDE_METERS = 22.0
+        private const val OSC_PERIOD_SECONDS = 11.0
+        private const val PHASE_STEP_SECONDS = 3.0
+        private const val FALL_BEHIND_THRESHOLD_METERS = 400.0
+        private const val SWEEP_DRIFT_PER_TICK = 12.0
+        private const val SWEEP_DRIFT_MAX = 800.0
+        private const val REGROUP_CLOSE_PER_TICK = 60.0
 
         fun advance(current: RideSession): RideSession {
             if (current.status == RideSessionStatus.ENDED) return current
@@ -120,14 +134,29 @@ class RideSimulator(
             val newDistance = current.distanceMeters + distanceDeltaMeters
 
             val totalRouteLength = totalRouteLengthMeters(current.route)
-            val routeFraction = if (totalRouteLength == 0.0) 0.0 else (newDistance / totalRouteLength).coerceIn(0.0, 1.0)
-            val newLeadPosition = pointAlongRoute(current.route, routeFraction)
+            val front = newDistance
+            val lastIndex = current.participants.lastIndex
+
+            // Sweep drift: grows each tick, or closes while regrouping. Reset by broadcastRegroup/callFuel.
+            val nextDrift = if (current.isRegrouping) {
+                (current.sweepDriftMeters - REGROUP_CLOSE_PER_TICK).coerceAtLeast(0.0)
+            } else {
+                (current.sweepDriftMeters + SWEEP_DRIFT_PER_TICK).coerceAtMost(SWEEP_DRIFT_MAX)
+            }
+            val stillRegrouping = current.isRegrouping && nextDrift > 0.0
 
             val speakerIndex = ((newElapsed / SPEAKER_ROTATE_EVERY_SECONDS) % current.participants.size).toInt()
             val newParticipants = current.participants.mapIndexed { index, participant ->
+                val baseGap = index * PACK_SLOT_GAP_METERS
+                val flex = if (index == 0) 0.0 else OSC_AMPLITUDE_METERS * sin((newElapsed + index * PHASE_STEP_SECONDS) / OSC_PERIOD_SECONDS)
+                val sweepExtra = if (index == lastIndex && lastIndex > 0) nextDrift else 0.0
+                val dist = (front - baseGap - flex - sweepExtra).coerceAtLeast(0.0)
+                val frac = if (totalRouteLength == 0.0) 0.0 else (dist / totalRouteLength).coerceIn(0.0, 1.0)
                 participant.copy(
-                    position = if (index == 0) newLeadPosition else participant.position,
+                    position = pointAlongRoute(current.route, frac),
+                    distanceAlongRouteMeters = dist,
                     isSpeaking = index == speakerIndex,
+                    hasFallenBehind = (front - dist) > FALL_BEHIND_THRESHOLD_METERS,
                 )
             }
 
@@ -139,6 +168,8 @@ class RideSimulator(
                 participants = newParticipants,
                 maxSpeedKmh = maxOf(current.maxSpeedKmh, speed),
                 elevationGainMeters = current.elevationGainMeters + elevationDelta,
+                sweepDriftMeters = nextDrift,
+                isRegrouping = stillRegrouping,
             )
 
             val goal = current.activeGoal
