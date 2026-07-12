@@ -43,6 +43,8 @@ fun RideSessionScreen(
             when (event) {
                 is RideSessionEvent.GoalReached -> celebrationLeg = event.leg
                 RideSessionEvent.DriftedToEndless -> showDriftToast = true
+                is RideSessionEvent.RiderFellBehind -> {}
+                is RideSessionEvent.GroupSignalRaised -> {}
             }
         }
     }

@@ -22,10 +22,23 @@ data class Leg(
     val endReason: LegEndReason,
 )
 
+enum class GroupSignalType { REGROUP, FUEL }
+
+data class GroupSignal(
+    val type: GroupSignalType,
+    val fromUserId: String,
+    val fromName: String,
+    val rallyPoi: PointOfInterest? = null,
+)
+
 sealed interface RideSessionEvent {
     data class GoalReached(val leg: Leg) : RideSessionEvent
     object DriftedToEndless : RideSessionEvent
+    data class RiderFellBehind(val participant: RideParticipantState) : RideSessionEvent
+    data class GroupSignalRaised(val signal: GroupSignal) : RideSessionEvent
 }
+
+enum class RiderRole { LEAD, SWEEP, RIDER }
 
 data class RideParticipantState(
     val userId: String,
@@ -33,6 +46,9 @@ data class RideParticipantState(
     val avatarRes: Int,
     val position: GeoPoint,
     val isSpeaking: Boolean = false,
+    val role: RiderRole = RiderRole.RIDER,
+    val distanceAlongRouteMeters: Double = 0.0,
+    val hasFallenBehind: Boolean = false,
 )
 
 data class RideSession(
@@ -49,6 +65,8 @@ data class RideSession(
     val completedLegs: List<Leg> = emptyList(),
     val maxSpeedKmh: Double = 0.0,
     val elevationGainMeters: Double = 0.0,
+    val sweepDriftMeters: Double = 0.0,
+    val isRegrouping: Boolean = false,
 )
 
 fun RideSession.activeLegDistanceMeters(): Double =
