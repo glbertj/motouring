@@ -1,13 +1,17 @@
 package com.valid.motouring.simulation
 
 import com.valid.motouring.data.model.GeoPoint
+import com.valid.motouring.data.model.GroupSignal
+import com.valid.motouring.data.model.GroupSignalType
 import com.valid.motouring.data.model.Leg
 import com.valid.motouring.data.model.LegEndReason
+import com.valid.motouring.data.model.PointOfInterest
 import com.valid.motouring.data.model.RideGoal
 import com.valid.motouring.data.model.RideMode
 import com.valid.motouring.data.model.RideSession
 import com.valid.motouring.data.model.RideSessionEvent
 import com.valid.motouring.data.model.RideSessionStatus
+import com.valid.motouring.data.model.RiderRole
 import com.valid.motouring.data.model.activeLegDistanceMeters
 import com.valid.motouring.data.model.activeLegDurationSeconds
 import com.valid.motouring.data.model.avgSpeedKmh
@@ -91,6 +95,43 @@ class RideSimulator(
         scope.launch { _events.emit(RideSessionEvent.DriftedToEndless) }
     }
 
+    fun setRole(userId: String, role: RiderRole) {
+        val current = _session.value
+        if (current.status == RideSessionStatus.ENDED) return
+        _session.value = current.copy(participants = withRole(current.participants, userId, role))
+    }
+
+    fun broadcastRegroup() {
+        val current = _session.value
+        if (current.status == RideSessionStatus.ENDED) return
+        _session.value = current.copy(isRegrouping = true)
+        val self = current.participants.firstOrNull() ?: return
+        scope.launch {
+            _events.emit(RideSessionEvent.GroupSignalRaised(GroupSignal(GroupSignalType.REGROUP, self.userId, self.name)))
+        }
+    }
+
+    fun callFuel(nearestFuel: PointOfInterest?) {
+        val current = _session.value
+        if (current.status == RideSessionStatus.ENDED) return
+        _session.value = current.copy(isRegrouping = true) // rally = tighten the pack
+        val self = current.participants.firstOrNull() ?: return
+        scope.launch {
+            _events.emit(
+                RideSessionEvent.GroupSignalRaised(
+                    GroupSignal(GroupSignalType.FUEL, self.userId, self.name, rallyPoi = nearestFuel),
+                ),
+            )
+        }
+    }
+
+    /** Debug: shove the sweep past the fall-behind threshold so the auto regroup event can be demoed on demand. */
+    fun forceSweepBehind() {
+        val current = _session.value
+        if (current.status == RideSessionStatus.ENDED) return
+        _session.value = current.copy(sweepDriftMeters = SWEEP_DRIFT_MAX, isRegrouping = false)
+    }
+
     fun stop() {
         job?.cancel()
         val current = _session.value
@@ -150,13 +191,16 @@ class RideSimulator(
                 val baseGap = index * PACK_SLOT_GAP_METERS
                 val flex = if (index == 0) 0.0 else OSC_AMPLITUDE_METERS * sin((newElapsed + index * PHASE_STEP_SECONDS) / OSC_PERIOD_SECONDS)
                 val sweepExtra = if (index == lastIndex && lastIndex > 0) nextDrift else 0.0
-                val dist = (front - baseGap - flex - sweepExtra).coerceAtLeast(0.0)
+                val offset = baseGap + flex + sweepExtra
+                val dist = (front - offset).coerceAtLeast(0.0)
                 val frac = if (totalRouteLength == 0.0) 0.0 else (dist / totalRouteLength).coerceIn(0.0, 1.0)
                 participant.copy(
                     position = pointAlongRoute(current.route, frac),
                     distanceAlongRouteMeters = dist,
                     isSpeaking = index == speakerIndex,
-                    hasFallenBehind = (front - dist) > FALL_BEHIND_THRESHOLD_METERS,
+                    // Use the raw offset (not front-dist) so a large forced/regroup drift is detected
+                    // even early in a ride, before dist has been floor-clamped to 0.
+                    hasFallenBehind = offset > FALL_BEHIND_THRESHOLD_METERS,
                 )
             }
 
