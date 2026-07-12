@@ -187,6 +187,7 @@ fun MotouringNavHost(
                     rideBuddyRepository = appContainer.rideBuddyRepository,
                     rideRepository = appContainer.rideRepository,
                     badgeRepository = appContainer.badgeRepository,
+                    poiRepository = appContainer.poiRepository,
                 ),
             )
             RideSessionScreen(
