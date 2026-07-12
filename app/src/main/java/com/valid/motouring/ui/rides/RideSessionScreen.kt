@@ -22,7 +22,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.valid.motouring.data.fake.FakeDataProvider
+import com.valid.motouring.data.model.GroupSignal
+import com.valid.motouring.data.model.GroupSignalType
 import com.valid.motouring.data.model.Leg
+import com.valid.motouring.data.model.PointOfInterest
 import com.valid.motouring.data.model.RideMode
 import com.valid.motouring.data.model.RideSessionEvent
 import kotlinx.coroutines.delay
@@ -37,14 +40,24 @@ fun RideSessionScreen(
     var showChoiceSheet by remember { mutableStateOf(false) }
     var showUndoSnackbar by remember { mutableStateOf(false) }
     var showDriftToast by remember { mutableStateOf(false) }
+    var regroupMessage by remember { mutableStateOf<String?>(null) }
+    var fuelSignal by remember { mutableStateOf<GroupSignal?>(null) }
+    var rallyPoi by remember { mutableStateOf<PointOfInterest?>(null) }
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
             when (event) {
                 is RideSessionEvent.GoalReached -> celebrationLeg = event.leg
                 RideSessionEvent.DriftedToEndless -> showDriftToast = true
-                is RideSessionEvent.RiderFellBehind -> {}
-                is RideSessionEvent.GroupSignalRaised -> {}
+                is RideSessionEvent.RiderFellBehind ->
+                    regroupMessage = "${event.participant.name} fell behind — regrouping"
+                is RideSessionEvent.GroupSignalRaised -> when (event.signal.type) {
+                    GroupSignalType.REGROUP -> regroupMessage = "Regroup — wait for me"
+                    GroupSignalType.FUEL -> {
+                        fuelSignal = event.signal
+                        rallyPoi = event.signal.rallyPoi
+                    }
+                }
             }
         }
     }
@@ -82,15 +95,28 @@ fun RideSessionScreen(
         }
     }
 
+    LaunchedEffect(regroupMessage) {
+        if (regroupMessage != null) { delay(4_000); regroupMessage = null }
+    }
+    LaunchedEffect(fuelSignal) {
+        if (fuelSignal != null) { delay(6_000); fuelSignal = null }
+    }
+    LaunchedEffect(rallyPoi) {
+        if (rallyPoi != null) { delay(10_000); rallyPoi = null }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            RideSessionHud(session = session, modifier = Modifier.weight(0.55f).fillMaxWidth())
+            RideSessionHud(session = session, rallyPoi = rallyPoi, modifier = Modifier.weight(0.55f).fillMaxWidth())
             Column(modifier = Modifier.weight(0.45f).fillMaxWidth()) {
-                RideDashboard(session = session)
+                RideDashboard(session = session, onSetRole = { userId, role -> viewModel.setRole(userId, role) })
                 Spacer(Modifier.weight(1f))
                 RideDebugControls(
                     showSetGoal = session.mode == RideMode.ENDLESS,
                     onSetGoal = { showChoiceSheet = true; showDriftToast = false },
+                    onRegroup = { viewModel.broadcastRegroup() },
+                    onFuel = { viewModel.callFuel() },
+                    onForceBehind = { viewModel.forceSweepBehind() },
                     onDrift = { viewModel.simulateDrift() },
                     onEnd = { onEndRide(viewModel.endRide()) },
                 )
@@ -132,6 +158,13 @@ fun RideSessionScreen(
         if (showDriftToast) {
             DriftToast(modifier = Modifier.align(Alignment.BottomCenter))
         }
+
+        regroupMessage?.let {
+            RegroupBanner(message = it, modifier = Modifier.align(Alignment.BottomCenter))
+        }
+        fuelSignal?.let {
+            FuelCallBanner(fromName = it.fromName, poiName = it.rallyPoi?.name, modifier = Modifier.align(Alignment.BottomCenter))
+        }
     }
 }
 
@@ -139,16 +172,23 @@ fun RideSessionScreen(
 private fun RideDebugControls(
     showSetGoal: Boolean,
     onSetGoal: () -> Unit,
+    onRegroup: () -> Unit,
+    onFuel: () -> Unit,
+    onForceBehind: () -> Unit,
     onDrift: () -> Unit,
     onEnd: () -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (showSetGoal) TextButton(onClick = onSetGoal) { Text("Set goal") }
+        TextButton(onClick = onRegroup) { Text("Regroup") }
+        TextButton(onClick = onFuel) { Text("Fuel") }
+        if (showSetGoal) TextButton(onClick = onSetGoal) { Text("Goal") }
+        TextButton(onClick = onForceBehind) { Text("Behind") }
         TextButton(onClick = onDrift) { Text("Off-route") }
         Spacer(Modifier.weight(1f))
-        Button(onClick = onEnd) { Text("End Ride") }
+        Button(onClick = onEnd) { Text("End") }
     }
 }
