@@ -1,7 +1,7 @@
 # Motouring — Next Features Backlog (niche rider-community themes)
 
 **Purpose:** Hand-off doc so a fresh Claude Code session can pick up the next work with zero re-explaining.
-**Last updated:** 2026-07-11, after Spec 1 (Map & Visual Overhaul) shipped to `origin/main`.
+**Last updated:** 2026-07-12, after Spec 2 (Group Ride Mechanics) shipped to `origin/main`.
 
 ---
 
@@ -9,7 +9,7 @@
 
 Open a fresh session in `/home/valid/projects/motouring` and paste:
 
-> Read `docs/superpowers/NEXT-niche-features-backlog.md`. Let's build the next theme: **Group ride mechanics**. Brainstorm it first (use the visual companion for layout questions), then spec → plan → subagent-driven build with Sonnet 5 doing the coding, direct-to-main like last time.
+> Read `docs/superpowers/NEXT-niche-features-backlog.md`. Let's build the next theme: **Safety & SOS**. Brainstorm it first (use the visual companion for layout questions), then spec → plan → subagent-driven build with Sonnet 5 doing the coding, direct-to-main like last time.
 
 That's it. Swap the theme name when you get to later ones.
 
@@ -19,10 +19,11 @@ That's it. Swap the theme name when you get to later ones.
 
 Motouring is a **UI/UX-only mockup** Android app (Kotlin/Compose, Material3, MVVM, in-memory fake data — no backend/network/auth) for a moto/car "ride together" social app. Built by Gilbert (Valid).
 
-Three bodies of work are DONE and on `main`:
+Four bodies of work are DONE and on `main`:
 1. **"Analog Dash" design system** — charcoal instrument-cluster palette, `InstrumentRing` gauge, Space Grotesk / Inter / IBM Plex Mono type, spring motion. Colors live in `ui/theme/Color.kt` (`MotouringColors`: `poiFuel/poiRepair/poiRest/rider/riderPurple/riderCoral/speaking/goal` + charcoal ramp + `AccentPrimary` orange).
 2. **Goal-vs-Endless ride modes** — the in-ride goal/drift/celebration flow (already shipped).
 3. **Map & Visual Overhaul (Spec 1)** — MapLibre GL + OpenFreeMap token-free dark maps behind reusable `MotouringMap` (`ui/components/map/`), Strava-style center Start-Ride FAB + quick menu, balanced-split in-ride screen (map + 6-stat dashboard + group/voice bar), Nearby (full-map + draggable sheet, tap-to-recenter), bundled CC0 photos. Spec + plan in `docs/superpowers/`.
+4. **Group Ride Mechanics (Spec 2)** — rider roles (Lead/Sweep/Rider, auto + reassignable via `RiderRole` + `assignInitialRoles`/`withRole`), a moving pack (`RideSimulator.advance()` moves every participant, Sweep drifts behind via `sweepDriftMeters`/`isRegrouping`), in-ride Stats/Pack toggle + formation list (`RideDashboard`), role-colored map markers + self ring (`MarkerStyle` LEAD/SWEEP/RIDER/BEHIND + `MapMarker.isSelf`), regroup ping (auto `RiderFellBehind` event + manual broadcast that tightens the pack) and fuel call (nearest-`GAS_STATION` rally + banner). Pure logic in `simulation/GroupRideCalculations.kt`. Spec + plan in `docs/superpowers/`. **On-device visual pass still pending on the Arch host.**
 
 **Reusable pieces the next features can lean on:**
 - `MotouringMap(cameraTarget, markers, polyline, onMarkerClick, modifier)` with `MapCamera`/`MapMarker`/`MapPolyline`/`MarkerStyle`.
@@ -40,15 +41,12 @@ Three bodies of work are DONE and on `main`:
 
 ## The four themes (sequenced — build top to bottom)
 
-### 1. Group ride mechanics  ← DO THIS NEXT (highest synergy)
-Builds directly on the existing group ride + `isSpeaking` voice sim + `MotouringMap`.
-- **Rider roles** — assign Lead / Sweep (tail) / regular; show role on each participant.
-- **"Regroup — wait for me" ping** — a rider signals they've fallen behind; the group gets a banner/toast.
-- **Pack / formation view** — who's where in the group (order, gaps) — could ride on the in-ride map with role-colored markers.
-- **Fuel-stop vote** — someone proposes a stop (tie into Nearby POIs); others vote yes/no, tally shown.
-- Likely touches: `RideSession`/`RideParticipantState` (+role, +behind flag), the in-ride screen, `RideSimulator`, a small vote/ping model.
+### 1. Group ride mechanics  ✅ DONE (Spec 2, shipped 2026-07-12)
+Rider roles, moving-pack formation view (Stats/Pack toggle), living regroup ping, and fuel call
+(reframed from "fuel-stop vote" → broadcast-and-rally, since one empty tank strands everyone). See
+`docs/superpowers/specs/2026-07-11-group-ride-mechanics-design.md`. On-device pass pending.
 
-### 2. Safety & SOS
+### 2. Safety & SOS  ← DO THIS NEXT
 - **One-tap SOS** — share live location with a trusted contact (simulated).
 - **Crash/fall detection** — simulated auto-alert to the group after a "hard stop."
 - **"Rider fell behind" group alert** — distinct from the manual regroup ping.
