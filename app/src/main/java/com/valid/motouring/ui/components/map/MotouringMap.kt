@@ -30,8 +30,8 @@ import org.maplibre.geojson.LineString
 import org.maplibre.geojson.Point
 
 data class MapCamera(val target: GeoPoint, val zoom: Double = 12.0)
-enum class MarkerStyle { SELF, BUDDY, POI_FUEL, POI_REPAIR, POI_REST }
-data class MapMarker(val id: String, val point: GeoPoint, val style: MarkerStyle, val selected: Boolean = false)
+enum class MarkerStyle { SELF, BUDDY, POI_FUEL, POI_REPAIR, POI_REST, LEAD, SWEEP, RIDER, BEHIND }
+data class MapMarker(val id: String, val point: GeoPoint, val style: MarkerStyle, val selected: Boolean = false, val isSelf: Boolean = false)
 data class MapPolyline(val points: List<GeoPoint>)
 
 private const val STYLE_URL = "https://tiles.openfreemap.org/styles/dark"
@@ -46,6 +46,10 @@ fun MarkerStyle.color(): ComposeColor = when (this) {
     MarkerStyle.POI_FUEL -> MotouringColors.poiFuel
     MarkerStyle.POI_REPAIR -> MotouringColors.poiRepair
     MarkerStyle.POI_REST -> MotouringColors.poiRest
+    MarkerStyle.LEAD -> MotouringColors.goal
+    MarkerStyle.SWEEP -> MotouringColors.poiRest
+    MarkerStyle.RIDER -> MotouringColors.rider
+    MarkerStyle.BEHIND -> MotouringColors.riderCoral
 }
 
 @Composable
@@ -132,6 +136,7 @@ private fun markerFeatureCollection(markers: List<MapMarker>): FeatureCollection
             addStringProperty("id", m.id)
             addStringProperty("style", m.style.name)
             addBooleanProperty("selected", m.selected)
+            addBooleanProperty("isSelf", m.isSelf)
         }
     }
     return FeatureCollection.fromFeatures(features)
@@ -156,8 +161,16 @@ private fun addMarkerSourceAndLayer(style: Style, markers: List<MapMarker>, colo
                     Expression.literal(7f),
                 ),
             ),
-            PropertyFactory.circleStrokeColor(Charcoal950.toArgb()),
-            PropertyFactory.circleStrokeWidth(2f),
+            PropertyFactory.circleStrokeColor(
+                Expression.switchCase(
+                    Expression.get("isSelf"),
+                    Expression.color(com.valid.motouring.ui.theme.OffWhite.toArgb()),
+                    Expression.color(Charcoal950.toArgb()),
+                ),
+            ),
+            PropertyFactory.circleStrokeWidth(
+                Expression.switchCase(Expression.get("isSelf"), Expression.literal(3f), Expression.literal(2f)),
+            ),
         ),
     )
 }
