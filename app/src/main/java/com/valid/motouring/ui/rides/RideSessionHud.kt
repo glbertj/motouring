@@ -9,7 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.valid.motouring.data.model.PointOfInterest
 import com.valid.motouring.data.model.RideSession
+import com.valid.motouring.data.model.RiderRole
 import com.valid.motouring.ui.components.map.MapCamera
 import com.valid.motouring.ui.components.map.MapMarker
 import com.valid.motouring.ui.components.map.MapPolyline
@@ -19,15 +21,28 @@ import com.valid.motouring.ui.theme.MotouringColors
 import com.valid.motouring.ui.theme.MotouringTextStyles
 import com.valid.motouring.ui.theme.Muted
 
+private fun RiderRole.markerStyle(hasFallenBehind: Boolean): MarkerStyle = when {
+    hasFallenBehind -> MarkerStyle.BEHIND
+    this == RiderRole.LEAD -> MarkerStyle.LEAD
+    this == RiderRole.SWEEP -> MarkerStyle.SWEEP
+    else -> MarkerStyle.RIDER
+}
+
 @Composable
-fun RideSessionHud(session: RideSession, modifier: Modifier = Modifier) {
+fun RideSessionHud(session: RideSession, rallyPoi: PointOfInterest? = null, modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxWidth()) {
-        val markers = session.participants.mapIndexed { i, p ->
+        val riderMarkers = session.participants.mapIndexed { i, p ->
             MapMarker(
                 id = p.userId,
                 point = p.position,
-                style = if (i == 0) MarkerStyle.SELF else MarkerStyle.BUDDY,
+                style = p.role.markerStyle(p.hasFallenBehind),
+                isSelf = i == 0,
             )
+        }
+        val markers = if (rallyPoi != null) {
+            riderMarkers + MapMarker("rally-${rallyPoi.id}", rallyPoi.location, MarkerStyle.POI_FUEL, selected = true)
+        } else {
+            riderMarkers
         }
         MotouringMap(
             cameraTarget = MapCamera(session.participants.first().position, zoom = 13.0),
