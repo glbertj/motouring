@@ -20,6 +20,7 @@ val PoiRest = Color(0xFFF5C34B)     // amber
 val RiderBlue = Color(0xFF7CB8FF)   // self / rider
 val RiderPurple = Color(0xFF8B7BE8)
 val RiderCoral = Color(0xFFFF8A65)
+val SosRed = Color(0xFFFF3B30)      // danger — SOS / crash / in-trouble
 val SpeakingGreen = Color(0xFF4ADE80)
 
 object MotouringColors {
@@ -38,4 +39,5 @@ object MotouringColors {
     val riderCoral = RiderCoral
     val speaking = SpeakingGreen
     val goal = AccentPrimary
+    val sos = SosRed
 }

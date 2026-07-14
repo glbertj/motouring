@@ -36,6 +36,8 @@ sealed interface RideSessionEvent {
     object DriftedToEndless : RideSessionEvent
     data class RiderFellBehind(val participant: RideParticipantState) : RideSessionEvent
     data class GroupSignalRaised(val signal: GroupSignal) : RideSessionEvent
+    object HardStopDetected : RideSessionEvent
+    data class RiderInTrouble(val participant: RideParticipantState) : RideSessionEvent
 }
 
 enum class RiderRole { LEAD, SWEEP, RIDER }

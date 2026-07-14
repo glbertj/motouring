@@ -58,6 +58,8 @@ fun RideSessionScreen(
                         rallyPoi = event.signal.rallyPoi
                     }
                 }
+                RideSessionEvent.HardStopDetected -> {}
+                is RideSessionEvent.RiderInTrouble -> {}
             }
         }
     }

@@ -1,6 +1,6 @@
 package com.valid.motouring.data.model
 
-enum class NotificationType { RIDE_INVITE, BADGE_EARNED, CHALLENGE_PROGRESS, SOCIAL }
+enum class NotificationType { RIDE_INVITE, BADGE_EARNED, CHALLENGE_PROGRESS, SOCIAL, SAFETY }
 
 data class Notification(
     val id: String,
