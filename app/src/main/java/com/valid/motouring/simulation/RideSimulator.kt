@@ -58,6 +58,11 @@ class RideSimulator(
                         _events.emit(RideSessionEvent.RiderFellBehind(p))
                     }
                 }
+                if (next.participants.size > 1 &&
+                    isRiderInTrouble(next.sweepDriftMeters) && !isRiderInTrouble(previous.sweepDriftMeters)
+                ) {
+                    next.participants.lastOrNull()?.let { _events.emit(RideSessionEvent.RiderInTrouble(it)) }
+                }
                 if (next.completedLegs.size > previous.completedLegs.size) {
                     val closedLeg = next.completedLegs.last()
                     if (closedLeg.endReason == LegEndReason.GOAL_REACHED) {
@@ -130,6 +135,20 @@ class RideSimulator(
         val current = _session.value
         if (current.status == RideSessionStatus.ENDED) return
         _session.value = current.copy(sweepDriftMeters = SWEEP_DRIFT_MAX, isRegrouping = false)
+    }
+
+    fun simulateHardStop() {
+        if (_session.value.status == RideSessionStatus.ENDED) return
+        scope.launch { _events.emit(RideSessionEvent.HardStopDetected) }
+    }
+
+    /** Debug: raise the escalated in-trouble alert for the sweep (rear rider) on demand. */
+    fun simulateRiderInTrouble() {
+        val current = _session.value
+        if (current.status == RideSessionStatus.ENDED) return
+        val sweep = current.participants.lastOrNull() ?: return
+        if (current.participants.size <= 1) return
+        scope.launch { _events.emit(RideSessionEvent.RiderInTrouble(sweep)) }
     }
 
     fun stop() {
