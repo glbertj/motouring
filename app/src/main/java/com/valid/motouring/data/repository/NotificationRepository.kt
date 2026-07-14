@@ -11,6 +11,10 @@ class NotificationRepository {
 
     fun observeNotifications(): StateFlow<List<Notification>> = notifications.asStateFlow()
 
+    fun add(notification: Notification) {
+        notifications.value = listOf(notification) + notifications.value
+    }
+
     fun markRead(id: String) {
         notifications.value = notifications.value.map {
             if (it.id == id) it.copy(isRead = true) else it

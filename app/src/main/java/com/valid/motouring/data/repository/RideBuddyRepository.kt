@@ -15,6 +15,15 @@ class RideBuddyRepository {
     fun friends(): List<RideBuddy> =
         buddies.value.filter { it.status == BuddyStatus.FRIEND }
 
+    fun trustedContacts(): List<RideBuddy> =
+        buddies.value.filter { it.status == BuddyStatus.FRIEND && it.isTrustedContact }
+
+    fun setTrusted(userId: String, trusted: Boolean) {
+        buddies.value = buddies.value.map {
+            if (it.user.id == userId) it.copy(isTrustedContact = trusted) else it
+        }
+    }
+
     fun updateStatus(userId: String, status: BuddyStatus) {
         buddies.value = buddies.value.map {
             if (it.user.id == userId) it.copy(status = status) else it
