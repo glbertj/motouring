@@ -39,8 +39,8 @@ object FakeDataProvider {
     )
 
     val rideBuddies = listOf(
-        RideBuddy(users[1], BuddyStatus.FRIEND),
-        RideBuddy(users[2], BuddyStatus.FRIEND),
+        RideBuddy(users[1], BuddyStatus.FRIEND, isTrustedContact = true),
+        RideBuddy(users[2], BuddyStatus.FRIEND, isTrustedContact = true),
         RideBuddy(users[3], BuddyStatus.FRIEND),
         RideBuddy(users[4], BuddyStatus.PENDING_RECEIVED),
         RideBuddy(users[5], BuddyStatus.NOT_CONNECTED),
