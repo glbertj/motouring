@@ -33,6 +33,8 @@ import com.valid.motouring.ui.profile.EditProfileScreen
 import com.valid.motouring.ui.profile.NotificationsScreen
 import com.valid.motouring.ui.profile.NotificationsViewModel
 import com.valid.motouring.ui.profile.SettingsScreen
+import com.valid.motouring.ui.profile.TrustedContactsScreen
+import com.valid.motouring.ui.profile.TrustedContactsViewModel
 import com.valid.motouring.ui.social.CreatePostScreen
 import com.valid.motouring.ui.social.FriendsScreen
 import com.valid.motouring.ui.social.FriendsViewModel
@@ -211,7 +213,13 @@ fun MotouringNavHost(
             )
         }
         composable(Destinations.SETTINGS) {
-            SettingsScreen()
+            SettingsScreen(onOpenTrustedContacts = { navController.navigate(Destinations.TRUSTED_CONTACTS) })
+        }
+        composable(Destinations.TRUSTED_CONTACTS) {
+            val viewModel: TrustedContactsViewModel = viewModel(
+                factory = TrustedContactsViewModel.factory(appContainer.rideBuddyRepository),
+            )
+            TrustedContactsScreen(viewModel = viewModel)
         }
         composable(Destinations.NOTIFICATIONS) {
             val viewModel: NotificationsViewModel = viewModel(

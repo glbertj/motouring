@@ -1,5 +1,6 @@
 package com.valid.motouring.ui.profile
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.valid.motouring.BuildConfig
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(onOpenTrustedContacts: () -> Unit = {}) {
     var pushNotificationsEnabled by remember { mutableStateOf(true) }
     var useMetricUnits by remember { mutableStateOf(true) }
 
@@ -37,6 +38,15 @@ fun SettingsScreen() {
             checked = useMetricUnits,
             onCheckedChange = { useMetricUnits = it },
         )
+
+        Row(
+            modifier = Modifier.fillMaxWidth().clickable(onClick = onOpenTrustedContacts).padding(vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(text = "Trusted Contacts", style = MaterialTheme.typography.bodyLarge)
+            Text(text = "›", style = MaterialTheme.typography.bodyLarge)
+        }
 
         Text(
             text = "Motouring v${BuildConfig.VERSION_NAME}",
