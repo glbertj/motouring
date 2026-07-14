@@ -1,5 +1,6 @@
 package com.valid.motouring.ui.rides
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -28,6 +30,8 @@ import com.valid.motouring.data.model.Leg
 import com.valid.motouring.data.model.PointOfInterest
 import com.valid.motouring.data.model.RideMode
 import com.valid.motouring.data.model.RideSessionEvent
+import com.valid.motouring.data.model.SafetyAlert
+import com.valid.motouring.data.model.SafetyAlertType
 import kotlinx.coroutines.delay
 
 @Composable
@@ -43,6 +47,8 @@ fun RideSessionScreen(
     var regroupMessage by remember { mutableStateOf<String?>(null) }
     var fuelSignal by remember { mutableStateOf<GroupSignal?>(null) }
     var rallyPoi by remember { mutableStateOf<PointOfInterest?>(null) }
+    val activeAlert by viewModel.activeAlert.collectAsState()
+    var crashCountdownActive by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
@@ -58,8 +64,8 @@ fun RideSessionScreen(
                         rallyPoi = event.signal.rallyPoi
                     }
                 }
-                RideSessionEvent.HardStopDetected -> {}
-                is RideSessionEvent.RiderInTrouble -> {}
+                RideSessionEvent.HardStopDetected -> crashCountdownActive = true
+                is RideSessionEvent.RiderInTrouble -> viewModel.raiseInTroubleAlert(event.participant)
             }
         }
     }
@@ -109,7 +115,7 @@ fun RideSessionScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            RideSessionHud(session = session, rallyPoi = rallyPoi, modifier = Modifier.weight(0.55f).fillMaxWidth())
+            RideSessionHud(session = session, rallyPoi = rallyPoi, onSosFire = { viewModel.triggerSos() }, modifier = Modifier.weight(0.55f).fillMaxWidth())
             Column(modifier = Modifier.weight(0.45f).fillMaxWidth()) {
                 RideDashboard(session = session, onSetRole = { userId, role -> viewModel.setRole(userId, role) })
                 Spacer(Modifier.weight(1f))
@@ -119,6 +125,8 @@ fun RideSessionScreen(
                     onRegroup = { viewModel.broadcastRegroup() },
                     onFuel = { viewModel.callFuel() },
                     onForceBehind = { viewModel.forceSweepBehind() },
+                    onCrash = { viewModel.simulateHardStop() },
+                    onTrouble = { viewModel.simulateRiderInTrouble() },
                     onDrift = { viewModel.simulateDrift() },
                     onEnd = { onEndRide(viewModel.endRide()) },
                 )
@@ -167,6 +175,23 @@ fun RideSessionScreen(
         fuelSignal?.let {
             FuelCallBanner(fromName = it.fromName, poiName = it.rallyPoi?.name, modifier = Modifier.align(Alignment.BottomCenter))
         }
+
+        activeAlert?.let { alert ->
+            when (alert.type) {
+                SafetyAlertType.RIDER_IN_TROUBLE ->
+                    RiderInTroubleCard(alert = alert, onResolve = { viewModel.resolveActiveAlert() }, modifier = Modifier.align(Alignment.BottomCenter))
+                else ->
+                    SosActiveBanner(alert = alert, onSafe = { viewModel.resolveActiveAlert() }, modifier = Modifier.align(Alignment.BottomCenter))
+            }
+        }
+
+        if (crashCountdownActive) {
+            CrashCountdownOverlay(
+                onOk = { crashCountdownActive = false },
+                onSend = { crashCountdownActive = false; viewModel.confirmCrashAlert() },
+                modifier = Modifier.align(Alignment.Center),
+            )
+        }
     }
 }
 
@@ -177,11 +202,15 @@ private fun RideDebugControls(
     onRegroup: () -> Unit,
     onFuel: () -> Unit,
     onForceBehind: () -> Unit,
+    onCrash: () -> Unit,
+    onTrouble: () -> Unit,
     onDrift: () -> Unit,
     onEnd: () -> Unit,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+        modifier = Modifier.fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -189,8 +218,9 @@ private fun RideDebugControls(
         TextButton(onClick = onFuel) { Text("Fuel") }
         if (showSetGoal) TextButton(onClick = onSetGoal) { Text("Goal") }
         TextButton(onClick = onForceBehind) { Text("Behind") }
+        TextButton(onClick = onCrash) { Text("Crash") }
+        TextButton(onClick = onTrouble) { Text("Trouble") }
         TextButton(onClick = onDrift) { Text("Off-route") }
-        Spacer(Modifier.weight(1f))
         Button(onClick = onEnd) { Text("End") }
     }
 }

@@ -29,7 +29,7 @@ private fun RiderRole.markerStyle(hasFallenBehind: Boolean): MarkerStyle = when 
 }
 
 @Composable
-fun RideSessionHud(session: RideSession, rallyPoi: PointOfInterest? = null, modifier: Modifier = Modifier) {
+fun RideSessionHud(session: RideSession, rallyPoi: PointOfInterest? = null, onSosFire: () -> Unit = {}, modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxWidth()) {
         val riderMarkers = session.participants.mapIndexed { i, p ->
             MapMarker(
@@ -68,6 +68,10 @@ fun RideSessionHud(session: RideSession, rallyPoi: PointOfInterest? = null, modi
                 modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
             )
         }
+        SosButton(
+            onFire = onSosFire,
+            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+        )
     }
 }
 
