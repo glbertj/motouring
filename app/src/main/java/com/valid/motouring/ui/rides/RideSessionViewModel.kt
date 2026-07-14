@@ -85,6 +85,8 @@ class RideSessionViewModel(
     fun simulateRiderInTrouble() = simulator.simulateRiderInTrouble()
 
     fun raiseInTroubleAlert(participant: RideParticipantState) {
+        val current = _activeAlert.value
+        if (current != null && (current.type == SafetyAlertType.SOS || current.type == SafetyAlertType.CRASH)) return
         val alert = buildSafetyAlert(
             id = "sa-${System.currentTimeMillis()}",
             type = SafetyAlertType.RIDER_IN_TROUBLE,

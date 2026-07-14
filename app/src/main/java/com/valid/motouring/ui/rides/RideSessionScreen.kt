@@ -169,11 +169,15 @@ fun RideSessionScreen(
             DriftToast(modifier = Modifier.align(Alignment.BottomCenter))
         }
 
-        regroupMessage?.let {
-            RegroupBanner(message = it, modifier = Modifier.align(Alignment.BottomCenter))
+        if (activeAlert == null) {
+            regroupMessage?.let {
+                RegroupBanner(message = it, modifier = Modifier.align(Alignment.BottomCenter))
+            }
         }
-        fuelSignal?.let {
-            FuelCallBanner(fromName = it.fromName, poiName = it.rallyPoi?.name, modifier = Modifier.align(Alignment.BottomCenter))
+        if (activeAlert == null) {
+            fuelSignal?.let {
+                FuelCallBanner(fromName = it.fromName, poiName = it.rallyPoi?.name, modifier = Modifier.align(Alignment.BottomCenter))
+            }
         }
 
         activeAlert?.let { alert ->
