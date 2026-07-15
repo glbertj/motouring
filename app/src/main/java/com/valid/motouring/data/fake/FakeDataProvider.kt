@@ -29,13 +29,26 @@ object FakeDataProvider {
     )
 
     val vehicles = listOf(
-        Vehicle("v-1", "u-me", VehicleType.MOTORCYCLE, "Yamaha", "MT-25", 2023, R.drawable.img_vehicle_moto),
-        Vehicle("v-2", "u-me", VehicleType.CAR, "Toyota", "Raize", 2022, R.drawable.img_vehicle_car),
+        Vehicle("v-1", "u-me", VehicleType.MOTORCYCLE, "Yamaha", "MT-25", 2023, R.drawable.img_vehicle_moto, odometerKm = 12_480),
+        Vehicle("v-2", "u-me", VehicleType.CAR, "Toyota", "Raize", 2022, R.drawable.img_vehicle_car, odometerKm = 34_200),
         Vehicle("v-3", "u-2", VehicleType.MOTORCYCLE, "Honda", "CBR150R", 2021, R.drawable.img_vehicle_moto),
         Vehicle("v-4", "u-3", VehicleType.CAR, "Honda", "Civic", 2020, R.drawable.img_vehicle_car),
         Vehicle("v-5", "u-4", VehicleType.MOTORCYCLE, "Kawasaki", "Z250", 2022, R.drawable.img_vehicle_moto),
         Vehicle("v-6", "u-5", VehicleType.MOTORCYCLE, "Yamaha", "R15", 2023, R.drawable.img_vehicle_moto),
         Vehicle("v-7", "u-6", VehicleType.CAR, "Mazda", "CX-5", 2021, R.drawable.img_vehicle_car),
+    )
+
+    val serviceItems = listOf(
+        // Yamaha MT-25 (v-1) @ 12,480 km  -> Tires OVERDUE, Chain DUE_SOON, Oil/Brakes OK  (2 due)
+        ServiceItem("v-1", ServiceType.OIL, lastServicedKm = 9_900, intervalKm = 6_000),
+        ServiceItem("v-1", ServiceType.CHAIN, lastServicedKm = 11_850, intervalKm = 700),
+        ServiceItem("v-1", ServiceType.TIRES, lastServicedKm = 2_300, intervalKm = 10_000),
+        ServiceItem("v-1", ServiceType.BRAKES, lastServicedKm = 8_000, intervalKm = 15_000),
+        // Toyota Raize (v-2) @ 34,200 km  -> Coolant DUE_SOON, rest OK  (1 due)
+        ServiceItem("v-2", ServiceType.OIL, lastServicedKm = 30_000, intervalKm = 10_000),
+        ServiceItem("v-2", ServiceType.TIRES, lastServicedKm = 20_000, intervalKm = 40_000),
+        ServiceItem("v-2", ServiceType.BRAKES, lastServicedKm = 18_000, intervalKm = 30_000),
+        ServiceItem("v-2", ServiceType.COOLANT, lastServicedKm = 5_000, intervalKm = 30_000),
     )
 
     val rideBuddies = listOf(
