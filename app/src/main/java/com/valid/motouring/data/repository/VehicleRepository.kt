@@ -17,4 +17,10 @@ class VehicleRepository {
     fun addVehicle(vehicle: Vehicle) {
         vehicles.value = vehicles.value + vehicle
     }
+
+    fun setOdometer(vehicleId: String, odometerKm: Int) {
+        vehicles.value = vehicles.value.map {
+            if (it.id == vehicleId) it.copy(odometerKm = odometerKm) else it
+        }
+    }
 }

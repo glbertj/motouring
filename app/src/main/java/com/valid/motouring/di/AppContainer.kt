@@ -2,6 +2,7 @@ package com.valid.motouring.di
 
 import com.valid.motouring.data.repository.BadgeRepository
 import com.valid.motouring.data.repository.ChallengeRepository
+import com.valid.motouring.data.repository.MaintenanceRepository
 import com.valid.motouring.data.repository.NotificationRepository
 import com.valid.motouring.data.repository.PoiRepository
 import com.valid.motouring.data.repository.PostRepository
@@ -20,4 +21,5 @@ class AppContainer {
     val poiRepository = PoiRepository()
     val postRepository = PostRepository()
     val notificationRepository = NotificationRepository()
+    val maintenanceRepository = MaintenanceRepository()
 }
