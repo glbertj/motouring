@@ -48,6 +48,8 @@ import com.valid.motouring.ui.rides.RideSummaryScreen
 import com.valid.motouring.ui.rides.StartRideScreen
 import com.valid.motouring.ui.vehicle.VehicleGarageSetupScreen
 import com.valid.motouring.ui.vehicle.VehicleGarageViewModel
+import com.valid.motouring.ui.vehicle.VehicleMaintenanceScreen
+import com.valid.motouring.ui.vehicle.VehicleMaintenanceViewModel
 import com.valid.motouring.ui.theme.MotouringMotion
 
 @Composable
@@ -226,6 +228,20 @@ fun MotouringNavHost(
                 factory = NotificationsViewModel.factory(appContainer.notificationRepository),
             )
             NotificationsScreen(viewModel = viewModel)
+        }
+        composable(
+            Destinations.VEHICLE_MAINTENANCE_PATTERN,
+            arguments = listOf(navArgument("vehicleId") { type = NavType.StringType }),
+        ) { backStackEntry ->
+            val vehicleId = requireNotNull(backStackEntry.arguments?.getString("vehicleId"))
+            val viewModel: VehicleMaintenanceViewModel = viewModel(
+                factory = VehicleMaintenanceViewModel.factory(
+                    appContainer.vehicleRepository,
+                    appContainer.maintenanceRepository,
+                    vehicleId,
+                ),
+            )
+            VehicleMaintenanceScreen(viewModel = viewModel)
         }
         composable(
             Destinations.CHALLENGE_DETAIL_PATTERN,

@@ -8,11 +8,14 @@ import com.valid.motouring.data.model.Badge
 import com.valid.motouring.data.model.User
 import com.valid.motouring.data.model.Vehicle
 import com.valid.motouring.data.repository.BadgeRepository
+import com.valid.motouring.data.repository.MaintenanceRepository
 import com.valid.motouring.data.repository.RideRepository
 import com.valid.motouring.data.repository.UserRepository
 import com.valid.motouring.data.repository.VehicleRepository
+import com.valid.motouring.simulation.dueCount
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
@@ -21,6 +24,7 @@ class ProfileViewModel(
     vehicleRepository: VehicleRepository,
     rideRepository: RideRepository,
     badgeRepository: BadgeRepository,
+    maintenanceRepository: MaintenanceRepository,
 ) : ViewModel() {
 
     val currentUser: User = userRepository.currentUser()
@@ -39,14 +43,20 @@ class ProfileViewModel(
 
     val badges: StateFlow<List<Badge>> = badgeRepository.observeBadges()
 
+    val dueCounts: StateFlow<Map<String, Int>> =
+        combine(vehicles, maintenanceRepository.observeItems()) { vs, items ->
+            vs.associate { v -> v.id to dueCount(items.filter { it.vehicleId == v.id }, v.odometerKm) }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
     companion object {
         fun factory(
             userRepository: UserRepository,
             vehicleRepository: VehicleRepository,
             rideRepository: RideRepository,
             badgeRepository: BadgeRepository,
+            maintenanceRepository: MaintenanceRepository,
         ) = viewModelFactory {
-            initializer { ProfileViewModel(userRepository, vehicleRepository, rideRepository, badgeRepository) }
+            initializer { ProfileViewModel(userRepository, vehicleRepository, rideRepository, badgeRepository, maintenanceRepository) }
         }
     }
 }

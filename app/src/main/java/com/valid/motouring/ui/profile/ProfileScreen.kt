@@ -1,6 +1,7 @@
 package com.valid.motouring.ui.profile
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.PaddingValues
@@ -37,11 +38,13 @@ fun ProfileScreen(
     onEditProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onNotificationsClick: () -> Unit,
+    onVehicleClick: (String) -> Unit,
 ) {
     val vehicles by viewModel.vehicles.collectAsState()
     val totalRides by viewModel.totalRides.collectAsState()
     val totalDistanceKm by viewModel.totalDistanceKm.collectAsState()
     val badges by viewModel.badges.collectAsState()
+    val dueCounts by viewModel.dueCounts.collectAsState()
 
     LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
         item {
@@ -68,7 +71,7 @@ fun ProfileScreen(
         }
         itemsIndexed(vehicles) { index, vehicle ->
             StaggeredEntrance(index = index, modifier = Modifier.padding(bottom = 8.dp)) {
-                MotouringCard(modifier = Modifier.fillMaxWidth()) {
+                MotouringCard(modifier = Modifier.fillMaxWidth(), onClick = { onVehicleClick(vehicle.id) }) {
                     Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                         Image(
                             painter = painterResource(id = vehicle.photoRes),
@@ -76,7 +79,19 @@ fun ProfileScreen(
                             modifier = Modifier.size(48.dp),
                         )
                         Spacer(modifier = Modifier.padding(start = 12.dp))
-                        Text(text = "${vehicle.year} ${vehicle.make} ${vehicle.model}")
+                        Text(text = "${vehicle.year} ${vehicle.make} ${vehicle.model}", modifier = Modifier.weight(1f))
+                        val due = dueCounts[vehicle.id] ?: 0
+                        if (due > 0) {
+                            Text(
+                                text = "$due due",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = com.valid.motouring.ui.theme.MotouringColors.statusOverdue,
+                                modifier = Modifier
+                                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(6.dp))
+                                    .background(com.valid.motouring.ui.theme.MotouringColors.statusOverdue.copy(alpha = 0.15f))
+                                    .padding(horizontal = 8.dp, vertical = 3.dp),
+                            )
+                        }
                     }
                 }
             }

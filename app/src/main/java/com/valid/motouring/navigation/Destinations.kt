@@ -24,6 +24,8 @@ object Destinations {
     const val SETTINGS = "settings"
     const val TRUSTED_CONTACTS = "trusted_contacts"
     const val NOTIFICATIONS = "notifications"
+    const val VEHICLE_MAINTENANCE_PATTERN = "vehicle_maintenance/{vehicleId}"
+    fun vehicleMaintenance(vehicleId: String) = "vehicle_maintenance/$vehicleId"
 
     const val START_RIDE = "start_ride"
     const val FRIENDS = "friends"

@@ -128,6 +128,7 @@ fun MainScaffold(
                             appContainer.vehicleRepository,
                             appContainer.rideRepository,
                             appContainer.badgeRepository,
+                            appContainer.maintenanceRepository,
                         ),
                     )
                     ProfileScreen(
@@ -136,6 +137,7 @@ fun MainScaffold(
                         onEditProfileClick = { outerNavController.navigate(Destinations.EDIT_PROFILE) },
                         onSettingsClick = { outerNavController.navigate(Destinations.SETTINGS) },
                         onNotificationsClick = { outerNavController.navigate(Destinations.NOTIFICATIONS) },
+                        onVehicleClick = { vehicleId -> outerNavController.navigate(Destinations.vehicleMaintenance(vehicleId)) },
                     )
                 }
             }
