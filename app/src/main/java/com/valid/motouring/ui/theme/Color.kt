@@ -40,4 +40,7 @@ object MotouringColors {
     val speaking = SpeakingGreen
     val goal = AccentPrimary
     val sos = SosRed
+    val statusOk = PoiFuel
+    val statusDueSoon = PoiRest
+    val statusOverdue = SosRed
 }

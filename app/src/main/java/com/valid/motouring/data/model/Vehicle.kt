@@ -10,4 +10,5 @@ data class Vehicle(
     val model: String,
     val year: Int,
     val photoRes: Int,
+    val odometerKm: Int = 0,
 )
