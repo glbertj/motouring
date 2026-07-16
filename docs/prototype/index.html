@@ -1,0 +1,528 @@
+<title>Motouring — Full App Prototype</title>
+<style>
+  :root{
+    --c950:#100E0C; --c900:#15130F; --c800:#1A1714; --c700:#241E19; --c600:#2A2522; --c500:#3D3632;
+    --ink:#F5F1EC; --muted:#A89F97; --dim:#7A8087;
+    --orange:#FF5A36; --green:#4ADE80; --amber:#F5C34B; --blue:#7CB8FF; --purple:#8B7BE8; --coral:#FF8A65; --sos:#FF3B30;
+    --sans:"Space Grotesk",ui-rounded,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--sans);
+    background:radial-gradient(1100px 640px at 50% -10%,#241a15 0%,transparent 60%),linear-gradient(180deg,#181410,#0c0a08);
+    color:var(--ink); min-height:100vh;}
+  a{color:inherit}
+  .wrap{display:flex; flex-wrap:wrap; gap:26px; justify-content:center; align-items:flex-start; padding:34px 18px 70px; max-width:1120px; margin:0 auto}
+
+  /* ---------- directory ---------- */
+  .dir{width:250px; flex:0 0 auto; position:sticky; top:24px}
+  .dir h1{font-size:19px; margin:0 0 3px; letter-spacing:-.01em}
+  .dir .sub{font-size:12px; color:var(--muted); margin:0 0 16px; line-height:1.5}
+  .dir .grp{font-family:var(--mono); font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--dim); margin:15px 0 6px}
+  .dir button{display:block; width:100%; text-align:left; background:none; border:0; color:var(--muted); font-family:var(--sans);
+    font-size:13px; padding:4px 8px; border-radius:7px; cursor:pointer}
+  .dir button:hover{background:var(--c800); color:var(--ink)}
+  .dir button.on{color:var(--orange)}
+
+  /* ---------- phone ---------- */
+  .phone{width:392px; max-width:100%; flex:0 0 auto; background:#050403; border-radius:48px; padding:12px;
+    box-shadow:0 2px 0 #2c2621 inset, 0 34px 80px -26px #000, 0 0 0 1px #000;}
+  .screen{position:relative; background:var(--c950); border-radius:37px; overflow:hidden; height:788px; display:flex; flex-direction:column}
+  .notch{position:absolute; top:12px; left:50%; transform:translateX(-50%); width:120px; height:26px; background:#050403; border-radius:0 0 16px 16px; z-index:40}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:14px 26px 5px; font-family:var(--mono); font-size:12px; color:var(--ink); flex:0 0 auto; z-index:5}
+  .statusbar .r{color:var(--muted); font-size:11px}
+
+  .backbar{display:flex; align-items:center; gap:11px; padding:4px 16px 6px; flex:0 0 auto}
+  .backbar .bk{width:34px;height:34px;border-radius:11px;border:1px solid var(--c600); display:grid;place-items:center;color:var(--muted); font-size:18px; cursor:pointer; background:none}
+  .backbar .bk:active{background:var(--c800)}
+  .backbar .t{font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim)}
+
+  .view{flex:1 1 auto; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch}
+  .view::-webkit-scrollbar{width:0}
+  .pad{padding:6px 18px 26px}
+
+  /* bottom nav */
+  .nav{flex:0 0 auto; height:74px; background:var(--c900); border-top:1px solid var(--c600); display:flex; align-items:center; justify-content:space-around; position:relative}
+  .nav .item{display:flex; flex-direction:column; align-items:center; gap:3px; color:var(--dim); font-size:10.5px; cursor:pointer; width:56px; background:none;border:0;font-family:var(--sans)}
+  .nav .item .ic{font-size:20px; line-height:1}
+  .nav .item.on{color:var(--ink)}
+  .nav .item.on .ic{transform:scale(1.12)}
+  .fabslot{width:56px}
+  .fab{position:absolute; left:50%; top:-20px; transform:translateX(-50%); width:60px; height:60px; border-radius:20px; background:var(--orange); color:#100E0C; border:0; font-size:26px; display:grid; place-items:center; cursor:pointer; box-shadow:0 10px 24px -6px #ff5a3688}
+  .fab.open{transform:translateX(-50%) rotate(45deg)}
+
+  .fabmenu{position:absolute; inset:0; z-index:60; display:none}
+  .fabmenu.show{display:block}
+  .fabmenu .scrim{position:absolute; inset:0; background:#000a}
+  .fabmenu .acts{position:absolute; left:0; right:0; bottom:96px; display:flex; flex-direction:column; align-items:center; gap:10px}
+  .fabmenu .acts button{background:var(--c700); color:var(--ink); border:1px solid var(--c600); border-radius:13px; padding:12px 22px; font-size:14px; font-family:var(--sans); cursor:pointer; min-width:190px}
+
+  /* ---------- shared components ---------- */
+  h2.title{margin:10px 2px 2px; font-size:26px; font-weight:600; letter-spacing:-.02em}
+  .lead{font-size:23px;font-weight:600;letter-spacing:-.01em;margin:8px 2px}
+  .subt{color:var(--muted); font-size:13.5px; line-height:1.5; margin:2px 2px 0}
+  .sec{margin:22px 2px 9px; display:flex; align-items:baseline; justify-content:space-between}
+  .sec h3{margin:0; font-size:15px; font-weight:600}
+  .sec .act{font-size:12.5px; color:var(--orange); cursor:pointer}
+  .card{background:linear-gradient(180deg,var(--c700),var(--c900)); border:1px solid var(--c600); border-radius:18px}
+  .card.p{padding:14px}
+  .tiles{display:flex; gap:10px}
+  .tile{flex:1; background:var(--c800); border:1px solid var(--c600); border-radius:15px; padding:13px 10px; text-align:center}
+  .tile .v{font-family:var(--mono); font-size:20px; font-weight:600; font-variant-numeric:tabular-nums; letter-spacing:-.02em}
+  .tile .v small{font-size:12px; color:var(--muted); font-weight:400}
+  .tile .l{margin-top:4px; font-size:11px; color:var(--muted)}
+  .btn{display:block; width:100%; text-align:center; background:var(--orange); color:#160c08; border:0; border-radius:14px; padding:14px; font-size:15px; font-weight:600; font-family:var(--sans); cursor:pointer; margin:12px 0}
+  .btn.ghost{background:none; border:1px solid var(--c500); color:var(--ink)}
+  .btn.sos{background:var(--sos); color:#fff}
+  .btn:disabled{opacity:.45}
+  .chip{display:inline-block; font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.04em; padding:4px 9px; border-radius:7px}
+  .field{background:var(--c800); border:1px solid var(--c600); border-radius:12px; padding:13px 14px; color:var(--muted); font-size:14px; margin:8px 0}
+  .field .fl{font-size:11px; color:var(--dim); margin-bottom:3px}
+  .rowbtn{display:flex; justify-content:space-between; align-items:center; padding:14px 2px; border-bottom:1px solid var(--c800); cursor:pointer; font-size:15px}
+  .rowbtn .ch{color:var(--dim)}
+  .switch{width:42px;height:25px;border-radius:20px;background:var(--c600);position:relative;flex:0 0 auto}
+  .switch.on{background:var(--orange)}
+  .switch i{position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;transition:.15s}
+  .switch.on i{left:20px}
+  .avatar{border-radius:50%; background:var(--c700); display:grid; place-items:center; font-weight:600; color:var(--ink); flex:0 0 auto}
+  .photo{border-radius:14px; background-size:cover; background-position:center; position:relative; overflow:hidden}
+  .photo .tg{position:absolute; right:8px; bottom:7px; font-family:var(--mono); font-size:9px; color:#fff9; background:#0007; padding:2px 6px; border-radius:5px}
+  .map{border-radius:14px; overflow:hidden; position:relative; background:linear-gradient(160deg,#1b211d,#14100d); border:1px solid var(--c600)}
+  .map svg{position:absolute; inset:0; width:100%; height:100%}
+  .map .maptag{position:absolute; left:10px; top:8px; font-family:var(--mono); font-size:10px; color:var(--muted)}
+  .ring{position:relative; flex:0 0 auto}
+  .ring svg{width:100%; height:100%; transform:rotate(0)}
+  .ring .rt{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center}
+  .ring .rb{font-family:var(--mono); font-weight:600; font-size:15px; letter-spacing:-.02em}
+  .ring .rs{font-size:9px; color:var(--muted); letter-spacing:.08em}
+  .prog{height:6px; border-radius:4px; background:var(--c600); overflow:hidden; margin-top:8px}
+  .prog i{display:block; height:100%; border-radius:4px}
+  .muted{color:var(--muted)} .mono{font-family:var(--mono)} .tnum{font-variant-numeric:tabular-nums}
+
+  /* list rows */
+  .lr{display:flex; align-items:center; gap:12px; padding:11px 2px}
+  .lr .nm{font-weight:600; font-size:14.5px}
+  .lr .mt{font-size:11.5px; color:var(--muted)}
+  .pill{font-size:12px; color:var(--muted)}
+  .minibtn{background:var(--orange); color:#160c08; border:0; border-radius:9px; padding:7px 14px; font-size:12.5px; font-weight:600; font-family:var(--sans); cursor:pointer}
+  .minibtn.g{background:none; border:1px solid var(--c500); color:var(--ink)}
+
+  /* in-ride */
+  .ir{position:absolute; inset:0; display:flex; flex-direction:column}
+  .ir .hud{flex:0 0 54%; position:relative; overflow:hidden}
+  .ir .hud .speed{position:absolute; left:18px; bottom:16px}
+  .ir .hud .speed b{font-family:var(--mono); font-size:44px; font-weight:600; letter-spacing:-.03em}
+  .ir .hud .speed span{display:block; font-size:11px; color:var(--muted); letter-spacing:.1em}
+  .ir .hud .goal{position:absolute; right:16px; top:14px; color:var(--orange); font-family:var(--mono); font-size:13px}
+  .ir .hud .sosb{position:absolute; right:16px; bottom:16px; width:58px; height:58px; border-radius:50%; background:var(--sos); color:#fff; border:0; font-weight:700; font-size:15px; cursor:pointer; box-shadow:0 0 0 4px #ff3b3033}
+  .ir .dash{flex:1 1 46%; background:var(--c950); border-top:1px solid var(--c700); padding:12px 14px; overflow-y:auto}
+  .toggle{display:flex; background:var(--c800); border-radius:11px; padding:3px; width:150px}
+  .toggle button{flex:1; background:none; border:0; color:var(--muted); font-size:12.5px; font-family:var(--sans); padding:6px; border-radius:8px; cursor:pointer}
+  .toggle button.on{background:var(--c700); color:var(--blue); font-weight:600}
+  .grid6{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px}
+  .g6{background:var(--c800); border-radius:11px; padding:9px; text-align:center}
+  .g6 .v{font-family:var(--mono); font-size:17px; font-weight:600}
+  .g6 .l{font-size:9.5px; color:var(--muted); letter-spacing:.06em}
+  .groupbar{display:flex; align-items:center; gap:8px; background:var(--c800); border-radius:12px; padding:9px 12px; margin-top:10px}
+  .stack{display:flex}
+  .stack .avatar{width:26px;height:26px;font-size:11px; border:2px solid var(--c950); margin-left:-8px}
+  .stack .avatar:first-child{margin-left:0}
+  .ctrl{display:flex; gap:7px; overflow-x:auto; padding:11px 0 2px}
+  .ctrl button{flex:0 0 auto; background:var(--c800); border:1px solid var(--c600); color:var(--muted); font-size:12px; padding:7px 13px; border-radius:9px; font-family:var(--sans); cursor:pointer}
+  .ctrl button.end{background:var(--sos); color:#fff; border-color:var(--sos)}
+  .alertslot{position:absolute; left:12px; right:12px; bottom:14px; z-index:30}
+  .banner{border-radius:14px; padding:13px 15px; font-size:13.5px; backdrop-filter:blur(4px)}
+  .crash{position:absolute; inset:0; z-index:50; background:#000e; display:none; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:30px}
+  .crash.show{display:flex}
+  .crash .big{font-family:var(--mono); font-size:66px; font-weight:700; color:var(--sos); line-height:1}
+  .foot{width:100%; text-align:center; color:var(--dim); font-family:var(--mono); font-size:11.5px; margin-top:8px}
+  @media(max-width:720px){ .dir{position:static; width:392px; max-width:100%; order:2} }
+</style>
+
+<div class="wrap">
+  <div class="dir">
+    <h1>Motouring</h1>
+    <p class="sub">Prototype web dari app Kotlin — semua layar bisa diklik. Peta = placeholder (MapLibre ga jalan di web). Data dari seed asli.</p>
+    <div id="menu"></div>
+  </div>
+
+  <div class="phone">
+    <div class="screen">
+      <div class="notch"></div>
+      <div class="statusbar"><span>9:41</span><span class="r">Motouring · ▂▄▆ · 84%</span></div>
+      <div id="chrome"></div>
+      <div class="view" id="view"></div>
+      <div class="nav" id="nav"></div>
+      <div class="fabmenu" id="fabmenu">
+        <div class="scrim" onclick="toggleFab(false)"></div>
+        <div class="acts">
+          <button onclick="toggleFab(false);go('scenic')">Plan a route</button>
+          <button onclick="toggleFab(false);go('startride')">Start group ride</button>
+          <button onclick="toggleFab(false);go('startride')">Start solo ride</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="foot" style="flex-basis:100%">Static mockup · warna &amp; data dari Analog Dash + seed · render device beneran tetap butuh on-device pass</p>
+</div>
+
+<script>
+//=================== data ===================
+const RD='linear-gradient(135deg,#3a2c22,#20242a)';
+const roads=['linear-gradient(135deg,#43342a,#1e2733)','linear-gradient(135deg,#2f3a2c,#20222c)','linear-gradient(135deg,#3d2f3a,#232a30)','linear-gradient(135deg,#3a3526,#222a2e)','linear-gradient(135deg,#402a26,#26303a)','linear-gradient(135deg,#293a34,#20222c)'];
+const posts=[
+ {id:'post-1',a:'Rafi',av:'R',ph:0,cap:'Sunday morning loop around Sudirman',lk:12,li:false,cm:2},
+ {id:'post-2',a:'Nadia',av:'N',ph:1,cap:'Weekend car meet turnout was huge',lk:24,li:true,cm:1},
+ {id:'post-3',a:'Dinda',av:'D',ph:3,cap:'New chain and sprocket installed',lk:8,li:false,cm:0}];
+const comments={'post-1':[['D','Dinda','Nice route!'],['B','Bagas',"Let's ride together next time"]],'post-2':[['S','Sarah','That CX-5 looks clean']],'post-3':[]};
+const pois=[['Pertamina Sudirman','⛽','var(--green)',4.3,0.4],['Shell Thamrin','⛽','var(--green)',4.1,1.1],['Bengkel Motor Jaya','🔧','var(--orange)',4.6,0.8],['Auto Repair Kemang','🔧','var(--orange)',4.4,2.3],['Pertamina Kuningan','⛽','var(--green)',4.0,1.9],['Bengkel Jaya Motor 2','🔧','var(--orange)',4.2,3.1],['Warung Rindu Alam','🍜','var(--amber)',4.5,2.7],['Kopi Titik Temu','🍜','var(--amber)',4.7,0.6]];
+const rides=[['Sudirman Sunday Loop',18.4,45,24,0],['Weekend Car Meet',42.0,90,28,1],['Night Ride to Puncak',65.0,150,26,5],['Kemang Evening Spin',22.0,55,24,1],['Weekend Car Meet II',55.0,110,30,1],['Sudirman Morning',31.0,70,26,0],['Short City Hop',12.0,30,24,3],['Bandung Day Trip',88.0,150,35,4],['Puncak Loop',44.0,90,29,5],['Sunday Sudirman',18.5,45,24,0],['Suburb Errand Run',27.0,60,27,1],['Long South Ride',63.0,135,28,2]];
+const vehicles={'v-1':{t:'2023 Yamaha MT-25',odo:12480,due:2,ph:'🏍',items:[['Oil','OK',43],['Chain','DUE SOON',90],['Tires','OVERDUE',102],['Brakes','OK',30]]},
+ 'v-2':{t:'2022 Toyota Raize',odo:34200,due:1,ph:'🚗',items:[['Oil','OK',42],['Tires','OK',36],['Brakes','OK',54],['Coolant','DUE SOON',97]]}};
+const challenges=[
+ {id:'c-1',t:'Ride 100km This Week',d:'Log at least 100km across any rides before the week ends.',cur:62,goal:100,u:'km',lb:[['Dinda',88],['Rafi',62],['Bagas',40]]},
+ {id:'c-2',t:'5 Rides This Month',d:'Complete 5 separate ride sessions this month, solo or group.',cur:3,goal:5,u:'',lb:[['Rafi',3],['Sarah',2]]},
+ {id:'c-3',t:'Group Ride Weekend',d:'Join or host a group ride with 3+ riders this weekend.',cur:0,goal:1,u:'',lb:[]}];
+const badges=[['b-1','First Ride','Complete your first tracked ride','Complete 1 ride',true],['b-2','Century Rider','Ride 100km in a single session','Single ride >= 100km',false],['b-3','Squad Leader','Host a group ride with 5+ riders','Host group ride, 5+ participants',true],['b-4','Night Owl','Complete a ride starting after 10pm','Ride start time >= 22:00',true],['b-5','Early Bird','Complete a ride starting before 6am','Ride start time <= 06:00',false],['b-6','Wrench Turner','Check in at 3 different repair shops','3 unique repair shop check-ins',false],['b-7','Explorer','Make 3 or more stops in a single ride','3+ goal stops in one ride',false],['b-8','Never Ending','Ride 50km or more without a goal','50km+ on a single Endless leg',false]];
+const friends=[['Dinda','D','FRIEND'],['Bagas','B','FRIEND'],['Sarah','S','FRIEND'],['Yoga','Y','PENDING'],['Nadia','N','NONE']];
+const notifs=[['Bagas invited you to a group ride',true],['You earned the Night Owl badge',true],["You're 62% through Ride 100km This Week",false],['Dinda commented on your post',false]];
+const trusted=[['Dinda',true],['Bagas',true],['Sarah',false]];
+const segments=[
+ {id:'s-1',n:'Sudirman Sprint',rg:'Jakarta',km:2.4,tw:'MELLOW',twc:'var(--green)',ldr:['Dinda',182],you:205,lb:[['Dinda','D',182],['Rafi','R',205],['Bagas','B',214],['Sarah','S',231]]},
+ {id:'s-2',n:'Puncak Pass',rg:'Bogor',km:8.1,tw:'TECHNICAL',twc:'var(--sos)',ldr:['Bagas',498],you:null,lb:[['Bagas','B',498],['Dinda','D',521],['Sarah','S',549]]},
+ {id:'s-3',n:'Thamrin Flow',rg:'Jakarta',km:3.2,tw:'FLOWING',twc:'var(--amber)',ldr:['Rafi',268],you:268,lb:[['Rafi','R',268],['Dinda','D',279],['Bagas','B',290]]}];
+const scenic=[
+ {id:'r-1',n:'Puncak Pass Run',rg:'Bogor',km:38,min:90,ph:5,vibes:[['Mountain','var(--purple)'],['Forest','var(--green)']],desc:'Switchbacks and tea-plantation views up to the pass. Cool air, best early morning before traffic.'},
+ {id:'r-2',n:'South Coast Cruise',rg:'Sukabumi',km:64,min:140,ph:1,vibes:[['Coastal','var(--blue)']],desc:'Long sweeping bends along the Indian Ocean cliffs. Open throttle, big horizons.'},
+ {id:'r-3',n:'Sudirman City Loop',rg:'Jakarta',km:12,min:35,ph:0,vibes:[['Urban','var(--amber)']],desc:'A quick after-dark loop through the CBD — lit towers, smooth tarmac, easy pace.'},
+ {id:'r-4',n:'Pine Forest Traverse',rg:'Bandung',km:51,min:120,ph:3,vibes:[['Forest','var(--green)'],['Mountain','var(--purple)']],desc:'Dappled light through the pines and cool ridgeline curves. A rider\'s favourite Sunday.'}];
+const scoreGrades=[['72','B',78,70,68],['61','C',55,74,52],['84','B',92,66,94],['74','B',76,72,74],['60','C',55,72,53]];
+
+//=================== helpers ===================
+const mmss=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+const hx=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function photo(h,i,tag){return `<div class="photo" style="height:${h}px;background:${roads[i%roads.length]}">${tag?`<span class="tg">${tag}</span>`:''}</div>`}
+function mapBox(h,tag){return `<div class="map" style="height:${h}px"><svg viewBox="0 0 300 ${h}" preserveAspectRatio="none"><path d="M10 ${h-14} C 70 ${h-40}, 90 30, 150 ${h*0.5} S 250 ${h-20}, 290 24" fill="none" stroke="#FF5A36" stroke-width="3" stroke-linecap="round" opacity=".85"/><circle cx="10" cy="${h-14}" r="4" fill="#7CB8FF"/><circle cx="290" cy="24" r="4" fill="#FF5A36"/></svg><span class="maptag">${tag||'map preview'}</span></div>`}
+function ring(sz,p,big,small,color){color=color||'#FF5A36';const c=2*Math.PI*42,off=c*(1-p);const glow=p>=1?'filter:drop-shadow(0 0 4px '+color+');':'';
+ return `<div class="ring" style="width:${sz}px;height:${sz}px"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#2A2522" stroke-width="8"/><circle cx="50" cy="50" r="42" fill="none" stroke="${color}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 50 50)" style="${glow}"/></svg><div class="rt"><div class="rb">${big}</div>${small?`<div class="rs">${small}</div>`:''}</div></div>`}
+function chip(txt,color){return `<span class="chip" style="color:${color};background:${color}22">${txt}</span>`}
+function av(sz,init,color){return `<div class="avatar" style="width:${sz}px;height:${sz}px;font-size:${sz*.4}px${color?';background:'+color+';color:#160c08':''}">${init}</div>`}
+function tile(v,l,u){return `<div class="tile"><div class="v">${v}${u?`<small> ${u}</small>`:''}</div><div class="l">${l}</div></div>`}
+function postCard(p,clickable){return `<div class="card p" style="margin-bottom:12px" ${clickable?`onclick="go('post',{id:'${p.id}'})" style="cursor:pointer"`:''}>
+  <div class="lr" style="padding:0 0 8px">${av(36,p.av)}<div class="nm">${p.a}</div></div>
+  ${photo(160,p.ph,'photo')}
+  <div style="margin:9px 0;font-size:14px">${p.cap}</div>
+  <div style="display:flex;gap:16px;align-items:center;font-size:13px" class="muted">
+    <span style="color:${p.li?'var(--orange)':'var(--muted)'}">${p.li?'♥':'♡'} ${p.lk}</span><span>💬 ${p.cm}</span></div></div>`}
+
+//=================== screens ===================
+const TABS=['home','nearby','rides','profile','challenges'];
+const TITLES={insights:'Profile',segments:'Rides',segdetail:'Segments',scenic:'Plan',scenicdetail:'Scenic',startride:'Ride',summary:'Ride',friends:'Profile',invite:'Ride',create:'Feed',post:'Feed',notifs:'Profile',edit:'Profile',settings:'Profile',trusted:'Settings',maint:'Garage',challengedetail:'Challenges',badges:'Challenges',badgedetail:'Badges',splash:'',onboarding:'',login:'',garage:''};
+
+const S={};
+S.splash=()=>`<div class="pad" style="height:100%;display:flex;align-items:center;justify-content:center"><div style="text-align:center"><div style="font-size:30px;font-weight:600;letter-spacing:-.02em">Motouring</div><div class="muted" style="margin-top:8px;font-size:12px">ride together</div><div style="margin-top:20px"><button class="btn" style="width:auto;padding:10px 20px;margin:auto" onclick="go('onboarding')">Enter →</button></div></div></div>`;
+S.onboarding=()=>`<div class="pad"><div style="text-align:center;padding:40px 10px">
+  <div style="font-size:52px">🏍️</div>
+  <h2 class="lead" style="text-align:center;margin-top:20px">Ride Together</h2>
+  <p class="subt" style="text-align:center">Start group rides, see your ride buddies live on the map, and talk over voice while you ride.</p>
+  <div style="display:flex;gap:6px;justify-content:center;margin:22px 0">
+    <span style="width:10px;height:10px;border-radius:50%;background:var(--orange)"></span>
+    <span style="width:8px;height:8px;border-radius:50%;background:var(--c600);align-self:center"></span>
+    <span style="width:8px;height:8px;border-radius:50%;background:var(--c600);align-self:center"></span></div>
+  <button class="btn" onclick="go('login')">Next</button></div></div>`;
+S.login=()=>`<div class="pad"><div style="padding:40px 4px 0"><h2 class="lead">Welcome back</h2><p class="subt">Log in to continue riding with your crew</p>
+  <div class="field" style="margin-top:24px"><div class="fl">Username or email</div>rafi@motouring.app</div>
+  <div class="field"><div class="fl">Password</div>••••••••</div>
+  <button class="btn" onclick="go('garage')">Log In</button></div></div>`;
+S.garage=()=>`<div class="pad"><h2 class="lead">Add your first ride</h2><p class="subt">Register a motorcycle or car so we know what you're riding</p>
+  <div style="display:flex;gap:8px;margin:18px 0">${chip('Motorcycle','var(--orange)')}${chip('Car','var(--muted)')}</div>
+  <div class="field"><div class="fl">Make (e.g. Yamaha)</div>Yamaha</div>
+  <div class="field"><div class="fl">Model (e.g. MT-25)</div>MT-25</div>
+  <div class="field"><div class="fl">Year</div>2023</div>
+  <button class="btn" onclick="tab('home')">Continue</button></div>`;
+
+S.home=()=>`<div class="pad">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0">
+    <div style="font-size:20px;font-weight:600">Motouring</div>
+    <div style="color:var(--orange);font-size:22px;cursor:pointer" onclick="tab('challenges')">🏆</div></div>
+  <button class="btn" onclick="go('startride')">Start Group Ride</button>
+  <div class="card p" style="display:flex;align-items:center;gap:14px" onclick="go('challengedetail',{id:'c-1'})">
+    <div style="flex:1"><div class="mono muted" style="font-size:10.5px;letter-spacing:.1em">RIDE 100KM THIS WEEK</div>
+      <div style="margin-top:5px"><span class="mono" style="font-size:26px;font-weight:600">62</span><span class="muted"> /100 km</span></div></div>
+    ${ring(64,0.62,'62%','')}</div>
+  <div class="sec"><h3>Feed</h3><span class="act" onclick="go('create')">New Post</span></div>
+  ${posts.map(p=>postCard(p,true)).join('')}</div>`;
+
+S.nearby=()=>`<div style="height:100%;display:flex;flex-direction:column">
+  ${mapBox(300,'nearby — live map').replace('class="map"','class="map" style="border-radius:0;border:0;flex:0 0 42%"')}
+  <div style="padding:6px 14px 4px;display:flex;gap:7px;flex-wrap:wrap">${['All','⛽ Fuel','🔧 Repair','🍜 Food'].map((f,i)=>chip(f,i==0?'var(--orange)':'var(--muted)')).join('')}</div>
+  <div class="view" style="flex:1"><div class="pad" style="padding-top:2px">
+    <div style="font-weight:600;margin:6px 2px 10px">8 places nearby</div>
+    ${pois.map(p=>`<div class="lr"><div class="avatar" style="width:44px;height:44px;border-radius:13px;font-size:20px;background:${p[2]}22">${p[1]}</div>
+      <div style="flex:1"><div class="nm">${p[0]}</div><div class="mt"><span style="color:var(--amber)">★ ${p[3]}</span> · ${p[4]} km</div></div></div>`).join('')}
+  </div></div></div>`;
+
+S.rides=()=>`<div class="pad"><h2 class="title">Rides</h2>
+  <div class="card p" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-top:12px" onclick="go('segments')">
+    <div style="font-weight:600">🏁 Segments &amp; leaderboards</div><div class="muted">›</div></div>
+  ${rides.map((r,i)=>`<div class="card" style="margin-top:12px;overflow:hidden;cursor:pointer" onclick="go('summary',{i:${i}})">
+    ${photo(100,i,'').replace('border-radius:14px','border-radius:0')}
+    <div style="padding:12px 14px"><div style="font-weight:600;font-size:15px">${r[0]}</div>
+    <div style="display:flex;justify-content:space-between;margin-top:10px">
+      <div><div class="mono" style="font-weight:600">${r[1]} km</div><div class="mt">Distance</div></div>
+      <div><div class="mono" style="font-weight:600">${r[2]} min</div><div class="mt">Duration</div></div>
+      <div><div class="mono" style="font-weight:600">${r[3]} km/h</div><div class="mt">Avg Speed</div></div></div></div></div>`).join('')}</div>`;
+
+S.profile=()=>`<div class="pad">
+  <div class="lr" style="padding:8px 2px">${av(64,'R')}<div><div style="font-size:22px;font-weight:600">Rafi</div></div></div>
+  <div class="tiles" style="margin:8px 0 4px">${tile('12','Rides')}${tile('486.9','Total Dist','km')}${tile('3','Badges')}</div>
+  <div class="sec"><h3>My Garage</h3></div>
+  ${Object.entries(vehicles).map(([id,v])=>`<div class="card p" style="display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer" onclick="go('maint',{id:'${id}'})">
+    <div class="avatar" style="width:48px;height:48px;border-radius:12px;font-size:24px;background:var(--c700)">${v.ph}</div>
+    <div style="flex:1;font-weight:600">${v.t}</div>${v.due?`<span class="chip" style="color:var(--sos);background:var(--sos)22">${v.due} due</span>`:''}</div>`).join('')}
+  <div class="sec"><h3>Badges</h3></div>
+  <div style="display:flex;gap:14px">${badges.slice(0,4).map(b=>`<div style="text-align:center;cursor:pointer" onclick="go('badgedetail',{id:'${b[0]}'})">${ring(56,b[4]?1:0,'🎖','')}<div style="font-size:10px;margin-top:4px;width:56px" class="muted">${b[1]}</div></div>`).join('')}</div>
+  <div style="margin-top:18px">
+    ${[['Insights','insights'],['Ride Buddies','friends'],['Notifications','notifs'],['Edit Profile','edit'],['Settings','settings']].map(x=>`<div class="rowbtn" onclick="go('${x[1]}')">${x[0]}<span class="ch">›</span></div>`).join('')}
+  </div></div>`;
+
+S.challenges=()=>`<div class="pad"><div class="sec" style="margin-top:8px"><h3 style="font-size:18px">Active Challenges</h3></div>
+  ${challenges.map(c=>`<div class="card p" style="display:flex;gap:14px;align-items:center;margin-bottom:12px;cursor:pointer" onclick="go('challengedetail',{id:'${c.id}'})">
+    <div style="flex:1"><div style="font-weight:600">${c.t}</div><div class="mt" style="margin:3px 0 5px">${c.d}</div>
+    <div class="mono muted" style="font-size:12px">${c.cur} / ${c.goal}${c.u?' '+c.u:''}</div></div>
+    ${ring(52,c.cur/c.goal,Math.round(c.cur/c.goal*100)+'%','')}</div>`).join('')}
+  <div class="sec"><h3>Badges</h3><span class="act" onclick="go('badges')">See All</span></div>
+  <div style="display:flex;gap:14px">${badges.slice(0,4).map(b=>`<div style="text-align:center;cursor:pointer" onclick="go('badgedetail',{id:'${b[0]}'})">${ring(56,b[4]?1:0,'🎖','')}<div style="font-size:10px;margin-top:4px;width:56px" class="muted">${b[1]}</div></div>`).join('')}</div></div>`;
+
+// ---- insights (real aggregates) ----
+S.insights=()=>{
+  const wk=[63,27,18.5,44,88,12,31,55,22,60.4,65],mx=88;
+  const bars=wk.map((v,i)=>{const bw=(330-6*10)/11,h=v/mx*130,x=i*(bw+6);return `<rect x="${x.toFixed(1)}" y="${(138-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="4" fill="#FF5A36" opacity="${v==mx?1:.9}"/>`}).join('');
+  const sc=[85,70,62,72,88,58,78,60,74,72,61,84],mn=58,rg=30;
+  const pt=i=>[i*(330/11),64-6-((sc[i]-mn)/rg)*(64-12)];
+  let d='';sc.forEach((_,i)=>{const[x,y]=pt(i);d+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1)+' '});const[ex,ey]=pt(11);
+  const moto=273.9,car=212,tot=moto+car,mw=moto/tot*328;
+  return `<div class="pad"><h2 class="title">Insights</h2>
+  <div class="tiles" style="margin:16px 0 4px">${tile('486','Distance','km')}${tile('12','Rides')}${tile('17','Hours')}</div>
+  <div class="sec"><h3>Weekly Distance</h3></div>
+  <div class="card p"><div class="mono muted" style="font-size:11px;margin-bottom:5px">Peak 88 km / week</div>
+    <svg viewBox="0 0 330 150" style="width:100%"><line x1="0" y1="138" x2="330" y2="138" stroke="#2A2522" stroke-width="2"/>${bars}</svg></div>
+  <div class="sec"><h3>Personal Records</h3></div>
+  <div class="tiles">${tile('88','Longest','km')}${tile('35','Fastest','km/h')}${tile('88','Best Score')}</div>
+  <div class="sec"><h3>By Vehicle</h3></div>
+  <div class="card p"><svg viewBox="0 0 330 16" preserveAspectRatio="none" style="width:100%;height:15px;border-radius:8px"><rect x="0" y="0" width="${mw.toFixed(1)}" height="16" fill="#7CB8FF"/><rect x="${(mw+2).toFixed(1)}" y="0" width="${(328-mw).toFixed(1)}" height="16" fill="#F5C34B"/></svg>
+    <div style="display:flex;justify-content:space-between;margin-top:9px" class="mono"><span style="color:var(--blue);font-size:12px">Moto 274 km · 56%</span><span style="color:var(--amber);font-size:12px">Car 212 km · 44%</span></div></div>
+  <div class="sec"><h3>Ride Score Trend</h3></div>
+  <div class="card p"><div class="mono muted" style="font-size:11px;margin-bottom:5px">Latest 84</div>
+    <svg viewBox="0 0 330 74" style="width:100%"><path d="${d}" fill="none" stroke="#FF5A36" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${ex.toFixed(1)}" cy="${ey.toFixed(1)}" r="5" fill="#FF5A36"/></svg></div></div>`};
+
+S.segments=()=>`<div class="pad"><h2 class="title">Segments</h2>
+  ${segments.map(s=>`<div class="card p" style="margin-top:12px;cursor:pointer" onclick="go('segdetail',{id:'${s.id}'})">
+    <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:600">${s.n}</div>${chip(s.tw,s.twc)}</div>
+    <div class="mt" style="margin:3px 0 9px">${s.rg} · ${s.km} km</div>
+    <div style="display:flex;justify-content:space-between;font-size:13px"><span class="muted">Leader ${mmss(s.ldr[1])}</span>
+      <span style="color:${s.you?'var(--orange)':'var(--muted)'}">${s.you?'You '+mmss(s.you):'no time yet'}</span></div></div>`).join('')}</div>`;
+
+S.segdetail=(o)=>{const s=segments.find(x=>x.id===(o.id||'s-1'));const yr=s.lb.findIndex(r=>r[1]==='R');
+  return `<div>${photo(160,0,'route').replace('border-radius:14px','border-radius:0')}
+  <div class="pad"><h2 style="font-size:24px;font-weight:600;margin:6px 2px">${s.n}</h2>
+  <div class="muted" style="margin:2px">${s.rg} · ${s.km} km · ${s.tw.toLowerCase()}</div>
+  ${yr>=0?`<div style="color:var(--orange);font-weight:600;margin:8px 2px">Your best: #${yr+1} of ${s.lb.length}</div>`:''}
+  <div class="sec"><h3>Leaderboard</h3></div>
+  ${s.lb.map((r,i)=>{const you=r[1]==='R';return `<div class="lr" style="${you?'background:#FF5A3620;border-radius:10px;padding-left:8px;padding-right:8px':''}">
+    <div class="mono" style="width:22px;font-weight:600;color:${i<3?'var(--orange)':'var(--muted)'}">${i+1}</div>${av(32,r[1])}
+    <div style="flex:1">${r[0]}${you?' (you)':''}</div><div class="mono" style="font-weight:600">${mmss(r[2])}</div></div>`}).join('')}</div></div>`};
+
+S.scenic=()=>`<div class="pad"><h2 class="title">Scenic Routes</h2>
+  ${scenic.map(r=>`<div class="card p" style="margin-top:12px;cursor:pointer" onclick="go('scenicdetail',{id:'${r.id}'})">
+    ${photo(120,r.ph,'')}
+    <div style="font-weight:600;margin:9px 0 2px">${r.n}</div>
+    <div class="mt">${r.rg} · ${r.km} km · ${r.min} min</div>
+    <div style="display:flex;gap:6px;margin-top:7px">${r.vibes.map(v=>chip(v[0],v[1])).join('')}</div></div>`).join('')}</div>`;
+
+S.scenicdetail=(o)=>{const r=scenic.find(x=>x.id===(o.id||'r-1'));
+  return `<div>${photo(200,r.ph,'hero').replace('border-radius:14px','border-radius:0')}
+  <div class="pad"><h2 style="font-size:24px;font-weight:600;margin:6px 2px">${r.n}</h2>
+  <div class="muted" style="margin:2px">${r.rg} · ${r.km} km · ${r.min} min</div>
+  <div style="display:flex;gap:6px;margin:9px 2px">${r.vibes.map(v=>chip(v[0],v[1])).join('')}</div>
+  <p style="font-size:14px;line-height:1.55;margin:14px 2px">${r.desc}</p>
+  ${mapBox(200,'route preview')}
+  <button class="btn" style="margin-top:18px" onclick="go('startride')">Ride this route</button></div></div>`};
+
+S.startride=()=>`<div class="pad"><h2 class="title">Start a Ride</h2>
+  <div style="display:flex;gap:8px;margin:14px 0">${chip('Solo','var(--muted)')}${chip('Group','var(--orange)')}</div>
+  <div class="sec"><h3>Pick a vehicle</h3></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">${chip('Yamaha MT-25','var(--orange)')}${chip('Toyota Raize','var(--muted)')}</div>
+  <button class="btn ghost" style="margin-top:14px" onclick="go('invite')">Invite Ride Buddies</button>
+  <div class="sec"><h3>Pick a goal</h3></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">${['10 km','25 km','50 km','Warung Kopi Susu','Puncak Pass'].map((g,i)=>chip(g,i==0?'var(--orange)':'var(--muted)')).join('')}</div>
+  <div class="card p" style="margin-top:16px"><div style="display:flex;justify-content:space-between"><div><div style="font-weight:600;font-size:13px">Pre-ride check · TCLOCS</div><div class="mt">optional — tap to confirm each</div></div><div class="mono muted">2 / 6</div></div>
+    ${['Tires & wheels','Controls','Lights & electrics','Oil & fluids','Chassis','Stands'].map((t,i)=>`<div class="lr" style="padding:8px 0" onclick="this.querySelector('.ck').classList.toggle('on')"><div class="switch ${i<2?'on':''} ck" style="width:22px;height:22px;border-radius:6px"><i style="width:14px;height:14px;left:${i<2?'6':'3'}px;top:3px"></i></div><div style="flex:1;font-size:14px">${t}</div></div>`).join('')}</div>
+  <button class="btn" onclick="go('inride')">Start Ride</button></div>`;
+
+S.summary=(o)=>{const i=o.i||0,r=rides[i],sg=scoreGrades[r[4]];
+  return `<div class="pad"><h2 class="title">Ride Complete!</h2>
+  ${photo(160,i,'route')}
+  <div style="font-size:20px;font-weight:600;margin:10px 2px">${r[0]}</div>
+  <div class="tiles">${tile(r[1],'Distance','km')}${tile(r[2],'Duration','min')}${tile(r[3],'Avg','km/h')}</div>
+  <div class="sec"><h3>Ride Score</h3></div>
+  <div class="card p"><div><span style="font-size:34px;font-weight:700;color:var(--orange)" class="mono">${sg[0]}</span><span class="muted"> / 100 · ${sg[1]}</span></div>
+    ${[['Lean',sg[2]],['Smoothness',sg[3]],['Pace',sg[4]]].map(x=>`<div style="margin-top:10px"><div style="display:flex;justify-content:space-between;font-size:12.5px" class="muted"><span>${x[0]}</span><span>${x[1]}</span></div><div class="prog"><i style="width:${x[1]}%;background:var(--orange)"></i></div></div>`).join('')}</div>
+  <div class="card p" style="margin-top:10px;display:flex;justify-content:space-between"><span>Sudirman Sprint · 3:29</span><span style="color:var(--orange);font-weight:700">#3</span></div>
+  <div class="sec"><h3>Your Badges</h3></div>
+  <div style="display:flex;gap:14px">${['First Ride','Squad Leader','Night Owl'].map(b=>`<div style="text-align:center">${ring(52,1,'🎖','')}<div style="font-size:10px;margin-top:4px;width:52px" class="muted">${b}</div></div>`).join('')}</div>
+  <button class="btn" style="margin-top:18px" onclick="tab('home')">Done</button></div>`};
+
+S.friends=()=>`<div class="pad"><h2 class="title">Ride Buddies</h2>
+  ${friends.map(f=>`<div class="lr">${av(40,f[1])}<div style="flex:1" class="nm">${f[0]}</div>
+    ${f[2]==='FRIEND'?'<span class="pill">Friend</span>':f[2]==='PENDING'?'<button class="minibtn">Accept</button>':'<button class="minibtn g">Add</button>'}</div>`).join('')}</div>`;
+
+S.invite=()=>`<div style="height:100%;display:flex;flex-direction:column"><div class="view" style="flex:1"><div class="pad"><h2 class="title">Invite ride buddies</h2>
+  ${friends.map((f,i)=>`<div class="lr">${av(40,f[1])}<div style="flex:1" class="nm">${f[0]}</div><div class="switch ${i<2?'on':''}" style="width:22px;height:22px;border-radius:6px" onclick="this.classList.toggle('on')"><i style="width:14px;height:14px;top:3px;left:${i<2?'6':'3'}px"></i></div></div>`).join('')}</div></div>
+  <div class="pad" style="padding-top:0"><button class="btn" onclick="back()">Done (2 invited)</button></div></div>`;
+
+S.create=()=>`<div class="pad"><h2 class="title">New Post</h2>
+  ${photo(180,2,'add photo')}
+  <div class="field" style="margin-top:16px"><div class="fl">Caption</div>Morning ride was unreal…</div>
+  <div class="rowbtn">Attach a ride (optional)<span class="ch">▾</span></div>
+  <button class="btn" style="margin-top:20px" onclick="back()">Post</button></div>`;
+
+S.post=(o)=>{const p=posts.find(x=>x.id===(o.id||'post-1'))||posts[0];const cm=comments[p.id]||[];
+  return `<div style="height:100%;display:flex;flex-direction:column"><div class="view" style="flex:1"><div class="pad">
+  ${postCard(p,false)}
+  <div class="sec"><h3>Comments</h3></div>
+  ${cm.length?cm.map(c=>`<div class="lr" style="align-items:flex-start">${av(28,c[0])}<div><div class="mt" style="font-weight:600;color:var(--muted)">${c[1]}</div><div style="font-size:14px">${c[2]}</div></div></div>`).join(''):'<div class="muted" style="padding:10px 2px;font-size:13px">No comments yet</div>'}
+  </div></div><div class="pad" style="padding-top:0;display:flex;gap:8px;align-items:center"><div class="field" style="flex:1;margin:0">Add a comment</div><div style="color:var(--orange);font-size:20px">➤</div></div></div>`};
+
+S.notifs=()=>`<div class="pad"><h2 class="title">Notifications</h2>
+  ${notifs.map(n=>`<div class="card p" style="margin-top:10px"><div style="font-size:14px;font-weight:${n[1]?'600':'400'};color:${n[1]?'var(--ink)':'var(--muted)'}">${n[0]}</div></div>`).join('')}</div>`;
+
+S.edit=()=>`<div class="pad"><h2 class="title">Edit Profile</h2><div class="field" style="margin-top:16px"><div class="fl">Display name</div>Rafi</div><button class="btn" onclick="back()">Save</button></div>`;
+
+S.settings=()=>`<div class="pad"><h2 class="title">Settings</h2>
+  <div class="rowbtn" style="cursor:default">Push Notifications<div class="switch on" onclick="this.classList.toggle('on')"><i></i></div></div>
+  <div class="rowbtn" style="cursor:default">Use Metric Units<div class="switch on" onclick="this.classList.toggle('on')"><i></i></div></div>
+  <div class="rowbtn" onclick="go('trusted')">Trusted Contacts<span class="ch">›</span></div>
+  <div class="muted mono" style="font-size:11px;margin-top:24px">Motouring v1.0</div></div>`;
+
+S.trusted=()=>`<div class="pad"><h2 class="title">Trusted Contacts</h2>
+  <p class="subt" style="margin-bottom:12px">They get your SOS &amp; crash alerts with your live location.</p>
+  ${trusted.map(t=>`<div class="rowbtn" style="cursor:default">${t[0]}<div class="switch ${t[1]?'on':''}" onclick="this.classList.toggle('on')"><i></i></div></div>`).join('')}</div>`;
+
+S.maint=(o)=>{const v=vehicles[o.id||'v-1'];const cmap={'OK':'var(--green)','DUE SOON':'var(--amber)','OVERDUE':'var(--sos)'};
+  return `<div class="pad"><h2 style="font-size:23px;font-weight:600;margin:8px 2px">${v.t}</h2>
+  <div style="margin:6px 2px"><span class="mono" style="font-size:30px;font-weight:700">${v.odo.toLocaleString()}</span><span class="muted" style="font-size:12px"> km · tap to edit</span></div>
+  <div style="margin:6px 2px 4px;color:${v.due?'var(--sos)':'var(--green)'};font-size:14px">${v.due?v.due+' need attention':'All up to date'}</div>
+  ${v.items.map(it=>`<div class="card p" style="margin-top:8px"><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-weight:600">${it[0]}</div>${chip(it[1],cmap[it[1]])}</div>
+    <div class="prog"><i style="width:${Math.min(it[2],100)}%;background:${cmap[it[1]]}"></i></div>
+    ${it[1]!=='OK'?'<div style="color:var(--orange);font-size:13px;margin-top:8px">Mark serviced</div>':''}</div>`).join('')}</div>`};
+
+S.challengedetail=(o)=>{const c=challenges.find(x=>x.id===(o.id||'c-1'));
+  return `<div class="pad"><h2 style="font-size:23px;font-weight:600;margin:8px 2px">${c.t}</h2>
+  <p class="subt">${c.d}</p>
+  <div style="display:flex;justify-content:center;margin:20px 0">${ring(96,c.cur/c.goal,Math.round(c.cur/c.goal*100)+'%','')}</div>
+  <div style="text-align:center" class="mono muted">${c.cur} / ${c.goal}${c.u?' '+c.u:''}</div>
+  <div class="sec"><h3>Leaderboard</h3></div>
+  ${c.lb.length?c.lb.map((r,i)=>`<div class="lr"><div class="mono" style="width:24px;font-weight:600">#${i+1}</div>${av(32,r[0][0])}<div style="flex:1">${r[0]}</div><div class="mono" style="font-weight:600">${r[1]}</div></div>`).join(''):'<div class="muted" style="font-size:13px;padding:8px 2px">No entries yet</div>'}</div>`};
+
+S.badges=()=>`<div class="pad"><h2 class="title">Badges</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px">
+    ${badges.map(b=>`<div style="text-align:center;cursor:pointer" onclick="go('badgedetail',{id:'${b[0]}'})">${ring(64,b[4]?1:0,'🎖','')}<div style="font-size:10.5px;margin-top:5px" class="muted">${b[1]}</div></div>`).join('')}</div></div>`;
+
+S.badgedetail=(o)=>{const b=badges.find(x=>x[0]===(o.id||'b-1'));
+  return `<div class="pad" style="text-align:center;padding-top:30px">
+  ${ring(120,b[4]?1:0,'🎖','')}
+  <h2 style="font-size:23px;font-weight:600;margin:18px 2px 6px">${b[1]}</h2>
+  <p class="subt" style="text-align:center">${b[2]}</p>
+  <div class="muted" style="font-size:13px;margin-top:14px">Unlock criteria: ${b[3]}</div>
+  <div style="font-weight:600;margin-top:10px;color:${b[4]?'var(--green)':'var(--muted)'}">${b[4]?'Earned':'Not yet earned'}</div></div>`};
+
+// ---- in-ride (special full-screen) ----
+S.inride=()=>`<div class="ir">
+  <div class="hud">${mapBox(400,'in-ride map').replace('class="map"','class="map" style="position:absolute;inset:0;border-radius:0;border:0"')}
+    <div class="goal">→ 10 km</div>
+    <div class="speed"><b>28</b><span>KM/H</span></div>
+    <button class="sosb" onclick="setAlert('sos')">SOS</button></div>
+  <div class="dash">
+    <div style="display:flex;gap:14px;align-items:center">
+      ${ring(72,0.6,'4.0','KM LEFT')}
+      <div style="flex:1">
+        <div class="toggle"><button class="on" id="tgS" onclick="packToggle('S')">Stats</button><button id="tgP" onclick="packToggle('P')">Pack</button></div>
+        <div id="statsView" class="grid6" style="margin-top:10px">
+          ${[['6.0','DIST'],['25','AVG'],['12:00','TIME'],['64','MAX'],['180','CLIMB'],['4.0','GOAL']].map(x=>`<div class="g6"><div class="v">${x[0]}</div><div class="l">${x[1]}</div></div>`).join('')}</div>
+        <div id="packView" style="display:none;margin-top:10px">
+          ${[['Rafi','R','var(--orange)','LEAD','',true],['Dinda','D','var(--blue)','','',true],['Bagas','B','var(--coral)','SWEEP','0.4 km back',false]].map(p=>`<div class="lr" style="padding:7px 2px">${av(28,p[1],p[2])}<div style="flex:1"><span class="nm">${p[0]}</span> ${p[4]?`<span class="mt">${p[4]}</span>`:''}</div>${p[5]?'<span style="color:var(--green)">●</span>':''}${p[3]?`<span class="chip" style="color:${p[2]};background:${p[2]}22">${p[3]}</span>`:''}</div>`).join('')}</div>
+      </div></div>
+    <div class="groupbar"><div class="stack">${av(26,'R','var(--blue)')}${av(26,'D','var(--amber)')}${av(26,'B','var(--purple)')}</div>
+      <div style="flex:1"></div><span style="color:var(--green)">●</span><span class="muted" style="font-size:12px">Dinda speaking</span></div>
+    <div class="ctrl">
+      <button onclick="setAlert('regroup')">Regroup</button><button onclick="setAlert('fuel')">Fuel</button>
+      <button onclick="setAlert('behind')">Behind</button><button onclick="setAlert('trouble')">Trouble</button>
+      <button onclick="crashStart()">Crash</button><button onclick="setAlert(null)">Clear</button>
+      <button class="end" onclick="go('summary',{i:0})">End</button></div>
+  </div>
+  <div class="alertslot" id="alertslot"></div>
+  <div class="crash" id="crash"><div style="color:var(--sos);font-family:var(--mono);font-size:13px">⚠ POSSIBLE CRASH</div>
+    <div style="font-size:26px;font-weight:700;margin:8px">Are you OK?</div>
+    <div class="muted" style="font-size:13px;margin-bottom:16px">Auto-alerting your group &amp; trusted contacts</div>
+    <div class="big" id="cnum">15</div>
+    <button class="btn" style="background:#fff;color:#000;max-width:220px;margin-top:20px" onclick="crashStop()">I'm OK</button>
+    <button style="background:none;border:0;color:var(--sos);margin-top:6px;cursor:pointer" onclick="crashStop();setAlert('sos')">Send alert now</button></div></div>`;
+
+//=================== router ===================
+let stack=[['home',{}]];
+const view=document.getElementById('view'),nav=document.getElementById('nav'),chrome=document.getElementById('chrome');
+function cur(){return stack[stack.length-1]}
+function render(){
+  const [id,opts]=cur();const isTab=TABS.includes(id);const isFull=(id==='inride');
+  view.innerHTML=isFull?'':(S[id]?S[id](opts):'<div class="pad">?</div>');
+  if(isFull){view.innerHTML=S.inride();}
+  chrome.innerHTML = isTab||['splash','onboarding','login','garage'].includes(id) ? '' :
+    `<div class="backbar"><button class="bk" onclick="back()">‹</button><span class="t">${TITLES[id]||''}</span></div>`;
+  nav.style.display = isTab ? 'flex' : 'none';
+  buildNav(id); buildMenu(id); view.scrollTop=0;
+}
+function buildNav(id){
+  const items=[['home','⌂','Home'],['nearby','◍','Nearby'],['__fab__','',''],['rides','↺','Rides'],['profile','◑','Profile']];
+  nav.innerHTML=items.map(it=>it[0]==='__fab__'?`<div class="fabslot"></div>`:
+    `<button class="item ${id===it[0]||(id==='challenges'&&it[0]==='home')?'on':''}" onclick="tab('${it[0]}')"><span class="ic">${it[1]}</span>${it[2]}</button>`).join('')
+    +`<button class="fab" id="fab" onclick="toggleFab()">＋</button>`;
+}
+function tab(id){stack=[[id,{}]];toggleFab(false);render()}
+function go(id,opts){stack.push([id,opts||{}]);render()}
+function back(){if(stack.length>1)stack.pop();render()}
+function toggleFab(force){const m=document.getElementById('fabmenu'),f=document.getElementById('fab');
+  const open=force===undefined?!m.classList.contains('show'):force;
+  m.classList.toggle('show',open);if(f)f.classList.toggle('open',open)}
+
+// in-ride interactions
+function packToggle(v){document.getElementById('tgS').classList.toggle('on',v==='S');document.getElementById('tgP').classList.toggle('on',v==='P');
+  document.getElementById('statsView').style.display=v==='S'?'grid':'none';document.getElementById('packView').style.display=v==='P'?'block':'none'}
+function setAlert(type){const el=document.getElementById('alertslot');if(!el)return;
+  const A={sos:['SOS active · sharing live location','Sent to Dinda, Bagas','var(--sos)','#FF3B30'],
+    trouble:['Bagas may be in trouble','Out of contact · way behind · stopped off-route','var(--sos)','#FF3B30'],
+    regroup:['Bagas fell behind — regrouping','wait up','var(--coral)','#FF8A65'],
+    fuel:['Dinda needs fuel — rally at Pertamina Sudirman','','var(--green)','#4ADE80'],
+    behind:['Bagas fell behind — regrouping','BEHIND','var(--coral)','#FF8A65']};
+  if(!type){el.innerHTML='';return}const a=A[type];
+  el.innerHTML=`<div class="banner" style="background:${a[3]}22;border:1px solid ${a[3]}55"><div style="color:${a[2]};font-weight:600">${a[0]}</div>${a[1]?`<div class="muted" style="font-size:12px;margin-top:3px">${a[1]}</div>`:''}
+    <div style="text-align:right;margin-top:6px"><span style="color:${a[2]};font-size:12.5px;cursor:pointer" onclick="setAlert(null)">${type==='sos'?"I'm safe now":'Dismiss'}</span></div></div>`}
+let cti;
+function crashStart(){const c=document.getElementById('crash');c.classList.add('show');let n=15;const el=document.getElementById('cnum');el.textContent=n;
+  cti=setInterval(()=>{n--;el.textContent=n;if(n<=0){clearInterval(cti);crashStop();setAlert('sos')}},1000)}
+function crashStop(){clearInterval(cti);const c=document.getElementById('crash');if(c)c.classList.remove('show')}
+
+// directory
+function buildMenu(active){
+  const groups=[['Onboarding',[['splash','Splash'],['onboarding','Onboarding'],['login','Login'],['garage','Garage Setup']]],
+    ['Main tabs',[['home','Home'],['nearby','Nearby'],['rides','Rides'],['profile','Profile'],['challenges','Challenges']]],
+    ['Ride flow',[['startride','Start Ride'],['inride','In-Ride (live)'],['summary','Ride Summary']]],
+    ['Discover',[['segments','Segments'],['segdetail','Segment Detail'],['scenic','Scenic Routes'],['scenicdetail','Scenic Detail'],['insights','Insights']]],
+    ['Social',[['friends','Ride Buddies'],['invite','Invite'],['create','Create Post'],['post','Post Detail']]],
+    ['Profile sub',[['notifs','Notifications'],['edit','Edit Profile'],['settings','Settings'],['trusted','Trusted Contacts'],['maint','Garage · MT-25']]],
+    ['Gamification',[['challengedetail','Challenge Detail'],['badges','Badges'],['badgedetail','Badge Detail']]]];
+  document.getElementById('menu').innerHTML=groups.map(g=>`<div class="grp">${g[0]}</div>`+g[1].map(x=>`<button class="${active===x[0]?'on':''}" onclick="jump('${x[0]}')">${x[1]}</button>`).join('')).join('');
+}
+function jump(id){if(TABS.includes(id)){tab(id)}else{stack=[['home',{}],[id,{}]];render()}}
+render();
+</script>
