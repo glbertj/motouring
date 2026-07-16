@@ -46,6 +46,10 @@ import com.valid.motouring.ui.rides.RideSessionScreen
 import com.valid.motouring.ui.rides.RideSessionViewModel
 import com.valid.motouring.ui.rides.RideSummaryScreen
 import com.valid.motouring.ui.rides.StartRideScreen
+import com.valid.motouring.ui.scenic.ScenicRouteDetailScreen
+import com.valid.motouring.ui.scenic.ScenicRouteDetailViewModel
+import com.valid.motouring.ui.scenic.ScenicRoutesScreen
+import com.valid.motouring.ui.scenic.ScenicRoutesViewModel
 import com.valid.motouring.ui.segments.SegmentDetailScreen
 import com.valid.motouring.ui.segments.SegmentDetailViewModel
 import com.valid.motouring.ui.segments.SegmentsScreen
@@ -305,6 +309,22 @@ fun MotouringNavHost(
                 factory = SegmentDetailViewModel.factory(appContainer.segmentRepository, segmentId, appContainer.userRepository.currentUser().id),
             )
             SegmentDetailScreen(viewModel = viewModel)
+        }
+        composable(Destinations.SCENIC_ROUTES) {
+            val viewModel: ScenicRoutesViewModel = viewModel(
+                factory = ScenicRoutesViewModel.factory(appContainer.scenicRouteRepository),
+            )
+            ScenicRoutesScreen(viewModel = viewModel, onRouteClick = { id -> navController.navigate(Destinations.scenicRouteDetail(id)) })
+        }
+        composable(
+            Destinations.SCENIC_ROUTE_DETAIL_PATTERN,
+            arguments = listOf(navArgument("routeId") { type = NavType.StringType }),
+        ) { backStackEntry ->
+            val routeId = requireNotNull(backStackEntry.arguments?.getString("routeId"))
+            val viewModel: ScenicRouteDetailViewModel = viewModel(
+                factory = ScenicRouteDetailViewModel.factory(appContainer.scenicRouteRepository, routeId),
+            )
+            ScenicRouteDetailScreen(viewModel = viewModel, onRideRoute = { navController.navigate(Destinations.START_RIDE) })
         }
         }
     }

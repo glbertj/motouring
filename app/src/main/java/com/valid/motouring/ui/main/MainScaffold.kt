@@ -148,7 +148,7 @@ fun MainScaffold(
                 onDismiss = { fabMenuOpen = false },
                 onStartSolo = { fabMenuOpen = false; outerNavController.navigate(Destinations.START_RIDE) },
                 onStartGroup = { fabMenuOpen = false; outerNavController.navigate(Destinations.START_RIDE) },
-                onPlanRoute = { fabMenuOpen = false; outerNavController.navigate(Destinations.START_RIDE) },
+                onPlanRoute = { fabMenuOpen = false; outerNavController.navigate(Destinations.SCENIC_ROUTES) },
             )
         }
     }

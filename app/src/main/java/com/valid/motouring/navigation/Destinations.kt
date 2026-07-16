@@ -44,4 +44,8 @@ object Destinations {
     const val SEGMENTS = "segments"
     const val SEGMENT_DETAIL_PATTERN = "segment_detail/{segmentId}"
     fun segmentDetail(segmentId: String) = "segment_detail/$segmentId"
+
+    const val SCENIC_ROUTES = "scenic_routes"
+    const val SCENIC_ROUTE_DETAIL_PATTERN = "scenic_route_detail/{routeId}"
+    fun scenicRouteDetail(routeId: String) = "scenic_route_detail/$routeId"
 }
