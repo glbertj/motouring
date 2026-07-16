@@ -26,8 +26,16 @@ import com.valid.motouring.ui.components.StatBlock
 import com.valid.motouring.ui.components.StaggeredEntrance
 
 @Composable
-fun RidesHistoryScreen(history: List<RideHistoryEntry>) {
+fun RidesHistoryScreen(history: List<RideHistoryEntry>, onSegmentsClick: () -> Unit = {}) {
     LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp)) {
+        item {
+            MotouringCard(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp), onClick = onSegmentsClick) {
+                Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("🏁 Segments & leaderboards", style = MaterialTheme.typography.titleMedium)
+                    Text("›", style = MaterialTheme.typography.titleMedium)
+                }
+            }
+        }
         itemsIndexed(history, key = { _, it -> it.id }) { index, entry ->
             StaggeredEntrance(index = index, modifier = Modifier.padding(bottom = 12.dp)) {
                 RideHistoryCard(entry)

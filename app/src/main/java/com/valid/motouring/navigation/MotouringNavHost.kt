@@ -46,6 +46,8 @@ import com.valid.motouring.ui.rides.RideSessionScreen
 import com.valid.motouring.ui.rides.RideSessionViewModel
 import com.valid.motouring.ui.rides.RideSummaryScreen
 import com.valid.motouring.ui.rides.StartRideScreen
+import com.valid.motouring.ui.segments.SegmentsScreen
+import com.valid.motouring.ui.segments.SegmentsViewModel
 import com.valid.motouring.ui.vehicle.VehicleGarageSetupScreen
 import com.valid.motouring.ui.vehicle.VehicleGarageViewModel
 import com.valid.motouring.ui.vehicle.VehicleMaintenanceScreen
@@ -285,6 +287,12 @@ fun MotouringNavHost(
                     onDone = { navController.popBackStack() },
                 )
             }
+        }
+        composable(Destinations.SEGMENTS) {
+            val viewModel: SegmentsViewModel = viewModel(
+                factory = SegmentsViewModel.factory(appContainer.segmentRepository, appContainer.userRepository.currentUser().id),
+            )
+            SegmentsScreen(viewModel = viewModel, onSegmentClick = { id -> navController.navigate(Destinations.segmentDetail(id)) })
         }
         }
     }

@@ -119,7 +119,7 @@ fun MainScaffold(
                 }
                 composable(BottomTab.Rides.route) {
                     val history by appContainer.rideRepository.observeHistory().collectAsState()
-                    RidesHistoryScreen(history = history)
+                    RidesHistoryScreen(history = history, onSegmentsClick = { outerNavController.navigate(Destinations.SEGMENTS) })
                 }
                 composable(BottomTab.Profile.route) {
                     val viewModel: ProfileViewModel = viewModel(

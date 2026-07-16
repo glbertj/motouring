@@ -40,4 +40,8 @@ object Destinations {
     const val CREATE_POST = "create_post"
     const val POST_DETAIL_PATTERN = "post_detail/{postId}"
     fun postDetail(postId: String) = "post_detail/$postId"
+
+    const val SEGMENTS = "segments"
+    const val SEGMENT_DETAIL_PATTERN = "segment_detail/{segmentId}"
+    fun segmentDetail(segmentId: String) = "segment_detail/$segmentId"
 }
