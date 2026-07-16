@@ -18,12 +18,14 @@ import com.valid.motouring.data.model.RideSessionStatus
 import com.valid.motouring.data.model.RiderRole
 import com.valid.motouring.data.model.SafetyAlert
 import com.valid.motouring.data.model.SafetyAlertType
+import com.valid.motouring.data.model.SegmentResult
 import com.valid.motouring.data.model.VehicleType
 import com.valid.motouring.data.repository.BadgeRepository
 import com.valid.motouring.data.repository.NotificationRepository
 import com.valid.motouring.data.repository.PoiRepository
 import com.valid.motouring.data.repository.RideBuddyRepository
 import com.valid.motouring.data.repository.RideRepository
+import com.valid.motouring.data.repository.SegmentRepository
 import com.valid.motouring.data.repository.UserRepository
 import com.valid.motouring.simulation.RideSimulator
 import com.valid.motouring.simulation.assignInitialRoles
@@ -31,6 +33,7 @@ import com.valid.motouring.simulation.buildSafetyAlert
 import com.valid.motouring.simulation.explorerBadgeEarned
 import com.valid.motouring.simulation.nearestGasStation
 import com.valid.motouring.simulation.neverEndingBadgeEarned
+import com.valid.motouring.simulation.rankOf
 import com.valid.motouring.simulation.toHistoryEntry
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,6 +49,7 @@ class RideSessionViewModel(
     private val poiRepository: PoiRepository,
     private val rideBuddyRepository: RideBuddyRepository,
     private val notificationRepository: NotificationRepository,
+    private val segmentRepository: SegmentRepository,
 ) : ViewModel() {
 
     private val simulator = RideSimulator(viewModelScope, initialSession)
@@ -141,11 +145,21 @@ class RideSessionViewModel(
         simulator.stop()
         val finalSession = simulator.session.value
         val completedAt = System.currentTimeMillis() / 1000
-        val entry = finalSession.toHistoryEntry(
+        val baseEntry = finalSession.toHistoryEntry(
             id = "r-${System.currentTimeMillis()}",
             completedAtEpochSeconds = completedAt,
             routePreviewRes = R.drawable.ic_route_preview_placeholder,
         )
+        val segment = segmentRepository.segments().firstOrNull()
+        val entry = if (segment != null) {
+            val avg = baseEntry.avgSpeedKmh.coerceAtLeast(1.0)
+            val timeSeconds = (segment.lengthKm / avg * 3600.0).toInt()
+            baseEntry.copy(
+                segmentResult = SegmentResult(segment.name, timeSeconds, rankOf(timeSeconds, segment.leaderboard)),
+            )
+        } else {
+            baseEntry
+        }
         rideRepository.addHistoryEntry(entry)
         if (explorerBadgeEarned(entry.legs)) {
             badgeRepository.markEarned("b-7", completedAt)
@@ -167,6 +181,7 @@ class RideSessionViewModel(
             badgeRepository: BadgeRepository,
             poiRepository: PoiRepository,
             notificationRepository: NotificationRepository,
+            segmentRepository: SegmentRepository,
         ) = viewModelFactory {
             initializer {
                 val currentUser = userRepository.currentUser()
@@ -207,7 +222,7 @@ class RideSessionViewModel(
                     activeGoal = initialGoal,
                     completedLegs = emptyList(),
                 )
-                RideSessionViewModel(initialSession, rideRepository, badgeRepository, poiRepository, rideBuddyRepository, notificationRepository)
+                RideSessionViewModel(initialSession, rideRepository, badgeRepository, poiRepository, rideBuddyRepository, notificationRepository, segmentRepository)
             }
         }
     }

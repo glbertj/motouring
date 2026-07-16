@@ -36,4 +36,5 @@ fun RideSession.toHistoryEntry(
     photoResList = emptyList(),
     completedAtEpochSeconds = completedAtEpochSeconds,
     legs = completedLegs,
+    rideScore = rideScore(maxSpeedKmh, avgSpeedKmh(distanceMeters, elapsedSeconds), elevationGainMeters, distanceMeters),
 )
