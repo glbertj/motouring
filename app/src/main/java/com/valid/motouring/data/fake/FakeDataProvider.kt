@@ -66,6 +66,15 @@ object FakeDataProvider {
             rideScore = RideScore(61, "C", 55, 74, 52), segmentResult = SegmentResult("Thamrin Flow", 281, 2)),
         RideHistoryEntry("r-3", "Night Ride to Puncak", VehicleType.MOTORCYCLE, 65_000.0, 9_000, 26.0, R.drawable.img_road_6, emptyList(), 1_752_800_000,
             rideScore = RideScore(84, "B", 92, 66, 94), segmentResult = SegmentResult("Puncak Pass", 505, 2)),
+        RideHistoryEntry("r-4", "Kemang Evening Spin", VehicleType.MOTORCYCLE, 22_000.0, 3_300, 24.0, R.drawable.img_road_2, emptyList(), 1_751_395_200, rideScore = RideScore(74, "B", 76, 72, 74)),
+        RideHistoryEntry("r-5", "Weekend Car Meet II", VehicleType.CAR, 55_000.0, 6_600, 30.0, R.drawable.img_road_3, emptyList(), 1_750_790_400, rideScore = RideScore(60, "C", 55, 72, 53)),
+        RideHistoryEntry("r-6", "Sudirman Morning", VehicleType.MOTORCYCLE, 31_000.0, 4_200, 26.5, R.drawable.img_road_1, emptyList(), 1_750_185_600, rideScore = RideScore(78, "B", 82, 70, 82)),
+        RideHistoryEntry("r-7", "Short City Hop", VehicleType.MOTORCYCLE, 12_000.0, 1_800, 24.0, R.drawable.img_road_4, emptyList(), 1_749_580_800, rideScore = RideScore(58, "C", 50, 70, 54)),
+        RideHistoryEntry("r-8", "Bandung Day Trip", VehicleType.CAR, 88_000.0, 9_000, 35.0, R.drawable.img_road_5, emptyList(), 1_748_976_000, rideScore = RideScore(88, "A", 90, 80, 94)),
+        RideHistoryEntry("r-9", "Puncak Loop", VehicleType.MOTORCYCLE, 44_000.0, 5_400, 29.0, R.drawable.img_road_6, emptyList(), 1_748_371_200, rideScore = RideScore(72, "B", 75, 70, 71)),
+        RideHistoryEntry("r-10", "Sunday Sudirman", VehicleType.MOTORCYCLE, 18_500.0, 2_700, 24.7, R.drawable.img_road_1, emptyList(), 1_747_766_400, rideScore = RideScore(62, "C", 60, 72, 54)),
+        RideHistoryEntry("r-11", "Suburb Errand Run", VehicleType.CAR, 27_000.0, 3_600, 27.0, R.drawable.img_road_2, emptyList(), 1_747_161_600, rideScore = RideScore(70, "B", 72, 70, 68)),
+        RideHistoryEntry("r-12", "Long South Ride", VehicleType.MOTORCYCLE, 63_000.0, 8_100, 28.0, R.drawable.img_road_3, emptyList(), 1_746_556_800, rideScore = RideScore(85, "A", 88, 74, 93)),
     )
 
     val challenges = listOf(
