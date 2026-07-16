@@ -471,13 +471,13 @@ S.inride=()=>`<div class="ir">
 
 //=================== router ===================
 let stack=[['home',{}]];
-const view=document.getElementById('view'),nav=document.getElementById('nav'),chrome=document.getElementById('chrome');
+const view=document.getElementById('view'),nav=document.getElementById('nav'),chromeEl=document.getElementById('chrome');
 function cur(){return stack[stack.length-1]}
 function render(){
   const [id,opts]=cur();const isTab=TABS.includes(id);const isFull=(id==='inride');
   view.innerHTML=isFull?'':(S[id]?S[id](opts):'<div class="pad">?</div>');
   if(isFull){view.innerHTML=S.inride();}
-  chrome.innerHTML = isTab||['splash','onboarding','login','garage'].includes(id) ? '' :
+  chromeEl.innerHTML = isTab||['splash','onboarding','login','garage'].includes(id) ? '' :
     `<div class="backbar"><button class="bk" onclick="back()">‹</button><span class="t">${TITLES[id]||''}</span></div>`;
   nav.style.display = isTab ? 'flex' : 'none';
   buildNav(id); buildMenu(id); view.scrollTop=0;
