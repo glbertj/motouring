@@ -16,6 +16,8 @@ object Destinations {
     const val CHALLENGE_DETAIL_PATTERN = "challenge_detail/{challengeId}"
     fun challengeDetail(challengeId: String) = "challenge_detail/$challengeId"
 
+    const val INSIGHTS = "insights"
+
     const val BADGES = "badges"
     const val BADGE_DETAIL_PATTERN = "badge_detail/{badgeId}"
     fun badgeDetail(badgeId: String) = "badge_detail/$badgeId"

@@ -29,6 +29,8 @@ import com.valid.motouring.ui.main.MainScaffold
 import com.valid.motouring.ui.onboarding.LoginScreen
 import com.valid.motouring.ui.onboarding.OnboardingScreen
 import com.valid.motouring.ui.onboarding.SplashScreen
+import com.valid.motouring.ui.insights.InsightsScreen
+import com.valid.motouring.ui.insights.InsightsViewModel
 import com.valid.motouring.ui.profile.EditProfileScreen
 import com.valid.motouring.ui.profile.NotificationsScreen
 import com.valid.motouring.ui.profile.NotificationsViewModel
@@ -261,6 +263,12 @@ fun MotouringNavHost(
             if (challenge != null) {
                 ChallengeDetailScreen(challenge = challenge)
             }
+        }
+        composable(Destinations.INSIGHTS) {
+            val viewModel: InsightsViewModel = viewModel(
+                factory = InsightsViewModel.factory(appContainer.rideRepository),
+            )
+            InsightsScreen(viewModel = viewModel)
         }
         composable(Destinations.BADGES) {
             val badges by appContainer.badgeRepository.observeBadges().collectAsState()

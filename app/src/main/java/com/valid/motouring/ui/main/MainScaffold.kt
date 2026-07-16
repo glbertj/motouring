@@ -137,6 +137,7 @@ fun MainScaffold(
                         onEditProfileClick = { outerNavController.navigate(Destinations.EDIT_PROFILE) },
                         onSettingsClick = { outerNavController.navigate(Destinations.SETTINGS) },
                         onNotificationsClick = { outerNavController.navigate(Destinations.NOTIFICATIONS) },
+                        onInsightsClick = { outerNavController.navigate(Destinations.INSIGHTS) },
                         onVehicleClick = { vehicleId -> outerNavController.navigate(Destinations.vehicleMaintenance(vehicleId)) },
                     )
                 }

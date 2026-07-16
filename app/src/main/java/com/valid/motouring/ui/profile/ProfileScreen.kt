@@ -38,6 +38,7 @@ fun ProfileScreen(
     onEditProfileClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onNotificationsClick: () -> Unit,
+    onInsightsClick: () -> Unit,
     onVehicleClick: (String) -> Unit,
 ) {
     val vehicles by viewModel.vehicles.collectAsState()
@@ -105,6 +106,7 @@ fun ProfileScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+            TextButton(onClick = onInsightsClick) { Text("Insights") }
             TextButton(onClick = onFriendsClick) { Text("Ride Buddies") }
             TextButton(onClick = onNotificationsClick) { Text("Notifications") }
             TextButton(onClick = onEditProfileClick) { Text("Edit Profile") }
