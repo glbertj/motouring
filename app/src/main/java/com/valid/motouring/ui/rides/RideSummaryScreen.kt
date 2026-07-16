@@ -13,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.valid.motouring.data.model.Badge
 import com.valid.motouring.data.model.RideHistoryEntry
@@ -28,6 +30,8 @@ import com.valid.motouring.ui.components.MotouringCard
 import com.valid.motouring.ui.components.SectionHeader
 import com.valid.motouring.ui.components.StaggeredEntrance
 import com.valid.motouring.ui.components.StatBlock
+import com.valid.motouring.ui.theme.MotouringColors
+import com.valid.motouring.ui.theme.Muted
 
 @Composable
 fun RideSummaryScreen(
@@ -56,6 +60,31 @@ fun RideSummaryScreen(
             StatBlock(label = "Distance", value = "${"%.1f".format(entry.distanceMeters / 1000.0)} km")
             StatBlock(label = "Duration", value = "${entry.durationSeconds / 60} min")
             StatBlock(label = "Avg Speed", value = "${entry.avgSpeedKmh.toInt()} km/h")
+        }
+
+        entry.rideScore?.let { score ->
+            SectionHeader(title = "Ride Score")
+            MotouringCard(modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.fillMaxWidth().padding(16.dp)) {
+                    Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                        Text("${score.overall}", style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold, color = MotouringColors.goal)
+                        Spacer(Modifier.padding(start = 6.dp))
+                        Text("/ 100 · ${score.grade}", style = MaterialTheme.typography.titleMedium, color = Muted)
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    ScoreBar("Lean", score.lean)
+                    ScoreBar("Smoothness", score.smoothness)
+                    ScoreBar("Pace", score.pace)
+                }
+            }
+            entry.segmentResult?.let { seg ->
+                MotouringCard(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                    Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("${seg.segmentName} · ${seg.timeSeconds / 60}:${(seg.timeSeconds % 60).toString().padStart(2, '0')}", style = MaterialTheme.typography.bodyMedium)
+                        Text("#${seg.rank}", style = MaterialTheme.typography.titleMedium, color = MotouringColors.goal, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
         }
 
         if (earnedBadges.isNotEmpty()) {
@@ -95,6 +124,21 @@ fun RideSummaryScreen(
         Button(onClick = onDone, modifier = Modifier.fillMaxWidth()) {
             Text("Done")
         }
+    }
+}
+
+@Composable
+private fun ScoreBar(label: String, value: Int) {
+    Column(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(label, style = MaterialTheme.typography.bodySmall, color = Muted)
+            Text("$value", style = MaterialTheme.typography.bodySmall)
+        }
+        LinearProgressIndicator(
+            progress = { value / 100f },
+            color = MotouringColors.goal,
+            modifier = Modifier.fillMaxWidth().height(6.dp).padding(top = 2.dp),
+        )
     }
 }
 
