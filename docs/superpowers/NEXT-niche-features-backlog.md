@@ -1,19 +1,17 @@
 # Motouring — Next Features Backlog (niche rider-community themes)
 
 **Purpose:** Hand-off doc so a fresh Claude Code session can pick up the next work with zero re-explaining.
-**Last updated:** 2026-07-16, after Spec 5 (Road Segments & Scoring) shipped to `origin/main`. **All four niche-feature themes are now DONE.**
+**Last updated:** 2026-07-16, after Spec 6 (Scenic-Route Discovery) shipped to `origin/main`. **All four niche-feature themes AND the one deferred sub-idea (scenic routes) are now DONE — nothing queued.**
 
 ---
 
 ## TL;DR — how to resume
 
-**All four sequenced niche-feature themes are built and on `origin/main`.** The backlog is complete; the remaining gate is the user's **on-device review on the Arch host** for each theme (the VM is headless — MapLibre/Compose can't render here).
+**All four sequenced niche-feature themes AND the one deferred sub-idea (scenic-route discovery) are built and on `origin/main`.** There is nothing queued. The remaining gate is the user's **on-device review on the Arch host** for each feature (the VM is headless — MapLibre/Compose can't render here).
 
-The one deferred sub-idea, if wanted as a small standalone spec later:
-
-> Read `docs/superpowers/NEXT-niche-features-backlog.md`. Let's build **scenic-route discovery** (the deferred piece of the Road-segments theme — a curated scenic-routes browse surface). Brainstorm it first, then spec → plan → subagent-driven build with Sonnet 5 doing the coding, direct-to-main like last time.
-
-Otherwise: pick any of the per-theme optional follow-ups logged below, or start something new.
+To pick up more work, either:
+- pick any of the per-theme **optional cosmetic/a11y follow-ups** logged below (none blocking), or
+- **start something new** — brainstorm a fresh idea, then spec → plan → subagent-driven build with Sonnet 5 doing the coding, direct-to-main like every theme so far.
 
 ---
 
@@ -21,7 +19,7 @@ Otherwise: pick any of the per-theme optional follow-ups logged below, or start 
 
 Motouring is a **UI/UX-only mockup** Android app (Kotlin/Compose, Material3, MVVM, in-memory fake data — no backend/network/auth) for a moto/car "ride together" social app. Built by Gilbert (Valid).
 
-Seven bodies of work are DONE and on `main`:
+Eight bodies of work are DONE and on `main`:
 1. **"Analog Dash" design system** — charcoal instrument-cluster palette, `InstrumentRing` gauge, Space Grotesk / Inter / IBM Plex Mono type, spring motion. Colors live in `ui/theme/Color.kt` (`MotouringColors`: `poiFuel/poiRepair/poiRest/rider/riderPurple/riderCoral/speaking/goal` + charcoal ramp + `AccentPrimary` orange).
 2. **Goal-vs-Endless ride modes** — the in-ride goal/drift/celebration flow (already shipped).
 3. **Map & Visual Overhaul (Spec 1)** — MapLibre GL + OpenFreeMap token-free dark maps behind reusable `MotouringMap` (`ui/components/map/`), Strava-style center Start-Ride FAB + quick menu, balanced-split in-ride screen (map + 6-stat dashboard + group/voice bar), Nearby (full-map + draggable sheet, tap-to-recenter), bundled CC0 photos. Spec + plan in `docs/superpowers/`.
@@ -29,6 +27,7 @@ Seven bodies of work are DONE and on `main`:
 5. **Safety & SOS (Spec 3)** — hold-to-send `SosButton`, crash/fall auto-detection (`simulateHardStop` → `HardStopDetected` → 15s `CrashCountdownOverlay` → auto-alert), an escalated `RiderInTrouble` alert (reuses Spec 2 `sweepDriftMeters` crossing `IN_TROUBLE_THRESHOLD_METERS`=700), trusted contacts = flagged friends (`RideBuddy.isTrustedContact`, managed in `TrustedContactsScreen` off Settings), `SAFETY` notifications, and a danger-red layer (`MotouringColors.sos` = `#FF3B30`) kept distinct from the orange regroup. `SafetyAlert` model + `activeAlert: StateFlow` on `RideSessionViewModel` (self SOS/crash outranks a buddy in-trouble); pure logic in `simulation/SafetyCalculations.kt`. Spec + plan in `docs/superpowers/`. **On-device visual pass still pending on the Arch host.** Optional follow-ups logged (highest: a11y `semantics` on `SosButton`).
 6. **Gear & Maintenance (Spec 4)** — per-vehicle odometer (`Vehicle.odometerKm`, seeded) + a service log with mileage-based OK/due-soon/overdue status (pure `simulation/MaintenanceCalculations.kt`: `serviceStatus`/`dueCount`, 0.85 due-soon fraction), one-tap mark-serviced + editable odometer (`MaintenanceRepository`, `VehicleRepository.setOdometer`), a `VehicleMaintenanceScreen` reached from Profile → My Garage (cards gain a "N due" badge, `ProfileViewModel.dueCounts`), and an optional advisory in-Start-Ride TCLOCS `PreRideChecklist` (ephemeral, never blocks Start). Semantic status colors (`MotouringColors.statusOk/statusDueSoon/statusOverdue`, aliases of green/amber/red). Spec + plan in `docs/superpowers/`. **On-device visual pass still pending on the Arch host.** Follow-up flagged: the "N due" badge uses red for any due count (due-soon-only vehicle reads red vs its amber row chip) — a design-taste call for on-device review.
 7. **Road Segments & Scoring (Spec 5)** — twisty-road segments with time leaderboards (`RoadSegment`/`SegmentTime`/`Twistiness`, seeded `SegmentRepository`), a browse list (`SegmentsScreen`, twistiness chip in status colors, your-best vs leader) + detail leaderboard (`SegmentDetailScreen`, your-row highlight + rank) reached from the Rides tab; a per-ride **ride score** (headline 0–100 + grade + Lean/Smoothness/Pace, pure `simulation/ScoringCalculations.kt`: `rideScore`/`sortedByTime`/`rankOf`) attached to `RideHistoryEntry.rideScore` in `toHistoryEntry` and shown on `RideSummaryScreen`; and a light seeded `segmentResult` callout (attached in `endRide` via `rankOf`). Scenic-route discovery deferred. Spec + plan in `docs/superpowers/`. **On-device visual pass still pending on the Arch host.** Follow-ups logged (all cosmetic): a seed snapshot dissonance (r-3 callout "Puncak Pass #2" vs seg-2 board excluding u-me — a demo "no time yet" state; reconcile trades that off) and minor seed/import nits.
+8. **Scenic-Route Discovery (Spec 6)** — the deferred sub-idea of Spec 5, built as a standalone follow-up. A seeded `ScenicRouteRepository` + `ScenicRoute`/`ScenicVibe` model; a browse list (`ui/scenic/ScenicRoutesScreen` + VM, hero-photo cards + vibe chips reusing accent tokens) and a detail screen (`ScenicRouteDetailScreen` + VM — hero, description, a `MotouringMap` polyline preview, "Ride this route" CTA), reached by **repurposing the Start-Ride FAB's "Plan a route"** action (`MainScaffold` → `SCENIC_ROUTES`). "Ride this route" navigates to Start Ride only (the route polyline is illustrative — deliberately NOT threaded into the ride sim). Shared `VibeChip` composable. Spec + plan in `docs/superpowers/`. **On-device visual pass still pending on the Arch host.**
 
 **Reusable pieces the next features can lean on:**
 - `MotouringMap(cameraTarget, markers, polyline, onMarkerClick, modifier)` with `MapCamera`/`MapMarker`/`MapPolyline`/`MarkerStyle`.
