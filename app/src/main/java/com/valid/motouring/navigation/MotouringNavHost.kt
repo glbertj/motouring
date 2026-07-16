@@ -46,6 +46,8 @@ import com.valid.motouring.ui.rides.RideSessionScreen
 import com.valid.motouring.ui.rides.RideSessionViewModel
 import com.valid.motouring.ui.rides.RideSummaryScreen
 import com.valid.motouring.ui.rides.StartRideScreen
+import com.valid.motouring.ui.segments.SegmentDetailScreen
+import com.valid.motouring.ui.segments.SegmentDetailViewModel
 import com.valid.motouring.ui.segments.SegmentsScreen
 import com.valid.motouring.ui.segments.SegmentsViewModel
 import com.valid.motouring.ui.vehicle.VehicleGarageSetupScreen
@@ -293,6 +295,16 @@ fun MotouringNavHost(
                 factory = SegmentsViewModel.factory(appContainer.segmentRepository, appContainer.userRepository.currentUser().id),
             )
             SegmentsScreen(viewModel = viewModel, onSegmentClick = { id -> navController.navigate(Destinations.segmentDetail(id)) })
+        }
+        composable(
+            Destinations.SEGMENT_DETAIL_PATTERN,
+            arguments = listOf(navArgument("segmentId") { type = NavType.StringType }),
+        ) { backStackEntry ->
+            val segmentId = requireNotNull(backStackEntry.arguments?.getString("segmentId"))
+            val viewModel: SegmentDetailViewModel = viewModel(
+                factory = SegmentDetailViewModel.factory(appContainer.segmentRepository, segmentId, appContainer.userRepository.currentUser().id),
+            )
+            SegmentDetailScreen(viewModel = viewModel)
         }
         }
     }
