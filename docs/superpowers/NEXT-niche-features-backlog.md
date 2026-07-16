@@ -1,17 +1,19 @@
 # Motouring — Next Features Backlog (niche rider-community themes)
 
 **Purpose:** Hand-off doc so a fresh Claude Code session can pick up the next work with zero re-explaining.
-**Last updated:** 2026-07-15, after Spec 4 (Gear & Maintenance) shipped to `origin/main`.
+**Last updated:** 2026-07-16, after Spec 5 (Road Segments & Scoring) shipped to `origin/main`. **All four niche-feature themes are now DONE.**
 
 ---
 
 ## TL;DR — how to resume
 
-Open a fresh session in `/home/valid/projects/motouring` and paste:
+**All four sequenced niche-feature themes are built and on `origin/main`.** The backlog is complete; the remaining gate is the user's **on-device review on the Arch host** for each theme (the VM is headless — MapLibre/Compose can't render here).
 
-> Read `docs/superpowers/NEXT-niche-features-backlog.md`. Let's build the next theme: **Road segments & scoring** (the last of the four). Brainstorm it first (use the visual companion for layout questions), then spec → plan → subagent-driven build with Sonnet 5 doing the coding, direct-to-main like last time.
+The one deferred sub-idea, if wanted as a small standalone spec later:
 
-That's it. Swap the theme name when you get to later ones.
+> Read `docs/superpowers/NEXT-niche-features-backlog.md`. Let's build **scenic-route discovery** (the deferred piece of the Road-segments theme — a curated scenic-routes browse surface). Brainstorm it first, then spec → plan → subagent-driven build with Sonnet 5 doing the coding, direct-to-main like last time.
+
+Otherwise: pick any of the per-theme optional follow-ups logged below, or start something new.
 
 ---
 
@@ -19,13 +21,14 @@ That's it. Swap the theme name when you get to later ones.
 
 Motouring is a **UI/UX-only mockup** Android app (Kotlin/Compose, Material3, MVVM, in-memory fake data — no backend/network/auth) for a moto/car "ride together" social app. Built by Gilbert (Valid).
 
-Six bodies of work are DONE and on `main`:
+Seven bodies of work are DONE and on `main`:
 1. **"Analog Dash" design system** — charcoal instrument-cluster palette, `InstrumentRing` gauge, Space Grotesk / Inter / IBM Plex Mono type, spring motion. Colors live in `ui/theme/Color.kt` (`MotouringColors`: `poiFuel/poiRepair/poiRest/rider/riderPurple/riderCoral/speaking/goal` + charcoal ramp + `AccentPrimary` orange).
 2. **Goal-vs-Endless ride modes** — the in-ride goal/drift/celebration flow (already shipped).
 3. **Map & Visual Overhaul (Spec 1)** — MapLibre GL + OpenFreeMap token-free dark maps behind reusable `MotouringMap` (`ui/components/map/`), Strava-style center Start-Ride FAB + quick menu, balanced-split in-ride screen (map + 6-stat dashboard + group/voice bar), Nearby (full-map + draggable sheet, tap-to-recenter), bundled CC0 photos. Spec + plan in `docs/superpowers/`.
 4. **Group Ride Mechanics (Spec 2)** — rider roles (Lead/Sweep/Rider, auto + reassignable via `RiderRole` + `assignInitialRoles`/`withRole`), a moving pack (`RideSimulator.advance()` moves every participant, Sweep drifts behind via `sweepDriftMeters`/`isRegrouping`), in-ride Stats/Pack toggle + formation list (`RideDashboard`), role-colored map markers + self ring (`MarkerStyle` LEAD/SWEEP/RIDER/BEHIND + `MapMarker.isSelf`), regroup ping (auto `RiderFellBehind` event + manual broadcast that tightens the pack) and fuel call (nearest-`GAS_STATION` rally + banner). Pure logic in `simulation/GroupRideCalculations.kt`. Spec + plan in `docs/superpowers/`. **On-device visual pass still pending on the Arch host.**
 5. **Safety & SOS (Spec 3)** — hold-to-send `SosButton`, crash/fall auto-detection (`simulateHardStop` → `HardStopDetected` → 15s `CrashCountdownOverlay` → auto-alert), an escalated `RiderInTrouble` alert (reuses Spec 2 `sweepDriftMeters` crossing `IN_TROUBLE_THRESHOLD_METERS`=700), trusted contacts = flagged friends (`RideBuddy.isTrustedContact`, managed in `TrustedContactsScreen` off Settings), `SAFETY` notifications, and a danger-red layer (`MotouringColors.sos` = `#FF3B30`) kept distinct from the orange regroup. `SafetyAlert` model + `activeAlert: StateFlow` on `RideSessionViewModel` (self SOS/crash outranks a buddy in-trouble); pure logic in `simulation/SafetyCalculations.kt`. Spec + plan in `docs/superpowers/`. **On-device visual pass still pending on the Arch host.** Optional follow-ups logged (highest: a11y `semantics` on `SosButton`).
 6. **Gear & Maintenance (Spec 4)** — per-vehicle odometer (`Vehicle.odometerKm`, seeded) + a service log with mileage-based OK/due-soon/overdue status (pure `simulation/MaintenanceCalculations.kt`: `serviceStatus`/`dueCount`, 0.85 due-soon fraction), one-tap mark-serviced + editable odometer (`MaintenanceRepository`, `VehicleRepository.setOdometer`), a `VehicleMaintenanceScreen` reached from Profile → My Garage (cards gain a "N due" badge, `ProfileViewModel.dueCounts`), and an optional advisory in-Start-Ride TCLOCS `PreRideChecklist` (ephemeral, never blocks Start). Semantic status colors (`MotouringColors.statusOk/statusDueSoon/statusOverdue`, aliases of green/amber/red). Spec + plan in `docs/superpowers/`. **On-device visual pass still pending on the Arch host.** Follow-up flagged: the "N due" badge uses red for any due count (due-soon-only vehicle reads red vs its amber row chip) — a design-taste call for on-device review.
+7. **Road Segments & Scoring (Spec 5)** — twisty-road segments with time leaderboards (`RoadSegment`/`SegmentTime`/`Twistiness`, seeded `SegmentRepository`), a browse list (`SegmentsScreen`, twistiness chip in status colors, your-best vs leader) + detail leaderboard (`SegmentDetailScreen`, your-row highlight + rank) reached from the Rides tab; a per-ride **ride score** (headline 0–100 + grade + Lean/Smoothness/Pace, pure `simulation/ScoringCalculations.kt`: `rideScore`/`sortedByTime`/`rankOf`) attached to `RideHistoryEntry.rideScore` in `toHistoryEntry` and shown on `RideSummaryScreen`; and a light seeded `segmentResult` callout (attached in `endRide` via `rankOf`). Scenic-route discovery deferred. Spec + plan in `docs/superpowers/`. **On-device visual pass still pending on the Arch host.** Follow-ups logged (all cosmetic): a seed snapshot dissonance (r-3 callout "Puncak Pass #2" vs seg-2 board excluding u-me — a demo "no time yet" state; reconcile trades that off) and minor seed/import nits.
 
 **Reusable pieces the next features can lean on:**
 - `MotouringMap(cameraTarget, markers, polyline, onMarkerClick, modifier)` with `MapCamera`/`MapMarker`/`MapPolyline`/`MarkerStyle`.
@@ -58,11 +61,11 @@ Per-vehicle service log + mileage reminders (odometer, OK/due-soon/overdue), one
 garage due-badges + tap-to-open maintenance screen, and an optional in-Start-Ride TCLOCS checklist. See
 `docs/superpowers/specs/2026-07-15-gear-and-maintenance-design.md`. On-device pass pending.
 
-### 4. Road segments & scoring  ← DO THIS NEXT (last of the four)
-- **Twisty-road "segments"** with leaderboards (Strava-segment style).
-- **Cornering / lean score** per ride.
-- **Scenic-route discovery.**
-- Extends ride tracking + badges.
+### 4. Road segments & scoring  ✅ DONE (Spec 5, shipped 2026-07-16) — **final theme; backlog complete**
+Twisty-road segments + time leaderboards (browse + detail), a per-ride ride score (headline +
+Lean/Smoothness/Pace) on the summary, and a light seeded segment-result callout. See
+`docs/superpowers/specs/2026-07-16-road-segments-and-scoring-design.md`. **Scenic-route discovery** was
+the one deferred sub-idea (see the TL;DR resume prompt above). On-device pass pending.
 
 ---
 
