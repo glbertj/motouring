@@ -8,6 +8,7 @@ import com.valid.motouring.data.repository.PoiRepository
 import com.valid.motouring.data.repository.PostRepository
 import com.valid.motouring.data.repository.RideBuddyRepository
 import com.valid.motouring.data.repository.RideRepository
+import com.valid.motouring.data.repository.SegmentRepository
 import com.valid.motouring.data.repository.UserRepository
 import com.valid.motouring.data.repository.VehicleRepository
 
@@ -22,4 +23,5 @@ class AppContainer {
     val postRepository = PostRepository()
     val notificationRepository = NotificationRepository()
     val maintenanceRepository = MaintenanceRepository()
+    val segmentRepository = SegmentRepository()
 }
