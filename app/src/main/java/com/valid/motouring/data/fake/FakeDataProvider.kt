@@ -60,9 +60,12 @@ object FakeDataProvider {
     )
 
     val rideHistory = listOf(
-        RideHistoryEntry("r-1", "Sudirman Sunday Loop", VehicleType.MOTORCYCLE, 18_400.0, 2_700, 24.5, R.drawable.img_road_1, listOf(R.drawable.img_road_2), 1_752_000_000),
-        RideHistoryEntry("r-2", "Weekend Car Meet", VehicleType.CAR, 42_000.0, 5_400, 28.0, R.drawable.img_road_3, listOf(R.drawable.img_road_4, R.drawable.img_road_5), 1_752_400_000),
-        RideHistoryEntry("r-3", "Night Ride to Puncak", VehicleType.MOTORCYCLE, 65_000.0, 9_000, 26.0, R.drawable.img_road_6, emptyList(), 1_752_800_000),
+        RideHistoryEntry("r-1", "Sudirman Sunday Loop", VehicleType.MOTORCYCLE, 18_400.0, 2_700, 24.5, R.drawable.img_road_1, listOf(R.drawable.img_road_2), 1_752_000_000,
+            rideScore = RideScore(72, "B", 78, 70, 68), segmentResult = SegmentResult("Sudirman Sprint", 209, 3)),
+        RideHistoryEntry("r-2", "Weekend Car Meet", VehicleType.CAR, 42_000.0, 5_400, 28.0, R.drawable.img_road_3, listOf(R.drawable.img_road_4, R.drawable.img_road_5), 1_752_400_000,
+            rideScore = RideScore(61, "C", 55, 74, 52), segmentResult = SegmentResult("Thamrin Flow", 281, 2)),
+        RideHistoryEntry("r-3", "Night Ride to Puncak", VehicleType.MOTORCYCLE, 65_000.0, 9_000, 26.0, R.drawable.img_road_6, emptyList(), 1_752_800_000,
+            rideScore = RideScore(84, "B", 92, 66, 94), segmentResult = SegmentResult("Puncak Pass", 505, 2)),
     )
 
     val challenges = listOf(
@@ -133,6 +136,34 @@ object FakeDataProvider {
         PointOfInterest("p-6", "Bengkel Jaya Motor 2", PoiType.REPAIR_SHOP, GeoPoint(lat = -6.1875, lng = 106.8271), setOf(VehicleType.MOTORCYCLE), 4.2),
         PointOfInterest("p-7", "Warung Rindu Alam", PoiType.REST_STOP, GeoPoint(lat = -6.2015, lng = 106.8180), setOf(VehicleType.MOTORCYCLE, VehicleType.CAR), 4.5),
         PointOfInterest("p-8", "Kopi Titik Temu", PoiType.REST_STOP, GeoPoint(lat = -6.2200, lng = 106.8250), setOf(VehicleType.MOTORCYCLE, VehicleType.CAR), 4.7),
+    )
+
+    val segments = listOf(
+        RoadSegment(
+            "seg-1", "Sudirman Sprint", "Jakarta", 2.4, Twistiness.MELLOW, R.drawable.img_road_1,
+            listOf(
+                SegmentTime("u-2", "Dinda", R.drawable.ic_avatar_placeholder, 182),
+                SegmentTime("u-me", "Rafi", R.drawable.ic_avatar_placeholder, 205),
+                SegmentTime("u-3", "Bagas", R.drawable.ic_avatar_placeholder, 214),
+                SegmentTime("u-4", "Sarah", R.drawable.ic_avatar_placeholder, 231),
+            ),
+        ),
+        RoadSegment(
+            "seg-2", "Puncak Pass", "Bogor", 8.1, Twistiness.TECHNICAL, R.drawable.img_road_6,
+            listOf(
+                SegmentTime("u-3", "Bagas", R.drawable.ic_avatar_placeholder, 498),
+                SegmentTime("u-2", "Dinda", R.drawable.ic_avatar_placeholder, 512),
+                SegmentTime("u-5", "Yoga", R.drawable.ic_avatar_placeholder, 540),
+            ),
+        ),
+        RoadSegment(
+            "seg-3", "Thamrin Flow", "Jakarta", 3.2, Twistiness.FLOWING, R.drawable.img_road_3,
+            listOf(
+                SegmentTime("u-me", "Rafi", R.drawable.ic_avatar_placeholder, 268),
+                SegmentTime("u-6", "Nadia", R.drawable.ic_avatar_placeholder, 275),
+                SegmentTime("u-2", "Dinda", R.drawable.ic_avatar_placeholder, 290),
+            ),
+        ),
     )
 
     val comments = listOf(
