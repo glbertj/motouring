@@ -166,6 +166,33 @@ object FakeDataProvider {
         ),
     )
 
+    val scenicRoutes = listOf(
+        ScenicRoute(
+            "sc-1", "Puncak Pass Run", "Bogor", 38.0, 90,
+            listOf(ScenicVibe.MOUNTAIN, ScenicVibe.FOREST), R.drawable.img_road_6,
+            "Switchbacks and tea-plantation views up to the pass. Cool air, best early morning before traffic.",
+            listOf(GeoPoint(-6.70, 106.90), GeoPoint(-6.66, 106.95), GeoPoint(-6.62, 107.00)),
+        ),
+        ScenicRoute(
+            "sc-2", "South Coast Cruise", "Sukabumi", 64.0, 140,
+            listOf(ScenicVibe.COASTAL), R.drawable.img_road_2,
+            "Long sweeping bends along the Indian Ocean cliffs. Open throttle, big horizons.",
+            listOf(GeoPoint(-7.02, 106.55), GeoPoint(-7.05, 106.62), GeoPoint(-7.08, 106.70)),
+        ),
+        ScenicRoute(
+            "sc-3", "Sudirman City Loop", "Jakarta", 12.0, 35,
+            listOf(ScenicVibe.URBAN), R.drawable.img_road_1,
+            "A quick after-dark loop through the CBD — lit towers, smooth tarmac, easy pace.",
+            listOf(GeoPoint(-6.2246, 106.8091), GeoPoint(-6.2088, 106.8206), GeoPoint(-6.1875, 106.8271)),
+        ),
+        ScenicRoute(
+            "sc-4", "Pine Forest Traverse", "Bandung", 51.0, 120,
+            listOf(ScenicVibe.FOREST, ScenicVibe.MOUNTAIN), R.drawable.img_road_4,
+            "Dappled light through the pines and cool ridgeline curves. A rider's favourite Sunday.",
+            listOf(GeoPoint(-6.85, 107.60), GeoPoint(-6.82, 107.66), GeoPoint(-6.80, 107.72)),
+        ),
+    )
+
     val comments = listOf(
         Comment("cm-1", "post-1", "u-2", "Dinda", R.drawable.ic_avatar_placeholder, "Nice route!", 1_752_000_500),
         Comment("cm-2", "post-1", "u-3", "Bagas", R.drawable.ic_avatar_placeholder, "Let's ride together next time", 1_752_000_800),
